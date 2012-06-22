@@ -148,7 +148,15 @@ copyex:
 #  define pWTCON	0x53000000
 #  define INTMSK	0x4A000008	/* Interrupt-Controller base addresses */
 #  define INTSUBMSK	0x4A00001C
+#  define LOCKTIME	0x4C000000
+#  define MPLLCON 	0x4C000004     
+#  define UPLLCON 	0x4C000008 
 #  define CLKDIVN	0x4C000014	/* clock divisor register */
+#  define CAMDIVN	0x4C000018
+# endif
+# if defined(CONFIG_S3C2440)
+# define MPLLCON_val	((184 << 12) + (2 << 4) + 2)	/*406M*/
+# define UPLLCON_val 	((60 << 12) + (4 << 4) + 2)   /*  47M */
 # endif
 
 	ldr	r0, =pWTCON
@@ -162,16 +170,56 @@ copyex:
 	ldr	r0, =INTMSK
 	str	r1, [r0]
 # if defined(CONFIG_S3C2410)
-	ldr	r1, =0x3ff
+	ldr	r1, =0x7ff
+	ldr	r0, =INTSUBMSK
+	str	r1, [r0]
+#else	 /* CONFIG_S3C2440 */
+	ldr	r1, =0x7ff
 	ldr	r0, =INTSUBMSK
 	str	r1, [r0]
 # endif
 
+        ldr     r0,=LOCKTIME
+        ldr     r1,=0xffffff
+        str     r1,[r0]	
+
+#if defined(CONFIG_S3C2440)
+	/* FCLK:HCLK:PCLK = 1:3:6 */
+	ldr	r0, =CLKDIVN
+	mov	r1, #7
+	str	r1, [r0]
+      /* Make sure we get FCLK:HCLK:PCLK = 1:3:6 */
+        ldr     r0, =CAMDIVN
+        mov     r1, #0
+        str     r1, [r0]
+
+        /* Clock asynchronous mode */
+        mrc     p15, 0, r1, c1, c0, 0
+        orr     r1, r1, #0xc0000000
+        mcr     p15, 0, r1, c1, c0, 0
+
+	ldr	r0,=UPLLCON
+	ldr	r1,=UPLLCON_val
+	str	r1,[r0]
+	nop	
+	nop
+	nop
+	nop
+	nop
+	nop
+	nop
+	nop
+	ldr	r0,=MPLLCON
+	ldr	r1,=MPLLCON_val
+	str	r1,[r0]
+#else
 	/* FCLK:HCLK:PCLK = 1:2:4 */
 	/* default FCLK is 120 MHz ! */
 	ldr	r0, =CLKDIVN
 	mov	r1, #3
 	str	r1, [r0]
+#endif
+
 #endif	/* CONFIG_S3C24X0 */
 
 	/*

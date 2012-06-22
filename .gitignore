@@ -14,7 +14,7 @@
 *.swp
 *.patch
 *.bin
-
+*.dis
 #
 # Top-level generic files
 #

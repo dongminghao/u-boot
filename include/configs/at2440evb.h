@@ -47,7 +47,8 @@
 #define CONFIG_SYS_ARM_CACHE_WRITETHROUGH
 
 /* input clock of PLL (the SMDK2410 has 12MHz input clock) */
-#define CONFIG_SYS_CLK_FREQ	12000000
+//#define CONFIG_SYS_CLK_FREQ	12000000
+#define CONFIG_SYS_CLK_FREQ	16934400
 
 #undef CONFIG_USE_IRQ		/* we don't need IRQ/FIQ stuff */
 

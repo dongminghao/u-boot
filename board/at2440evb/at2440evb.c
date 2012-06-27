@@ -82,21 +82,21 @@ int board_early_init_f(void)
 	struct s3c24x0_gpio * const gpio = s3c24x0_get_base_gpio();
 
 	/* to reduce PLL lock time, adjust the LOCKTIME register */
-	writel(0xFFFFFF, &clk_power->locktime);
+//	writel(0xFFFFFF, &clk_power->locktime);
 	
 	/* configure MPLL */
-	writel((M_MDIV << 12) + (M_PDIV << 4) + M_SDIV,
-	       &clk_power->mpllcon);
+//	writel((M_MDIV << 12) + (M_PDIV << 4) + M_SDIV,
+//	       &clk_power->mpllcon);
 	
 	/* some delay between MPLL and UPLL */
-	pll_delay(4000);
+//	pll_delay(4000);
 	
 	/* configure UPLL */
-	writel((U_M_MDIV << 12) + (U_M_PDIV << 4) + U_M_SDIV,
-	       &clk_power->upllcon);
+//	writel((U_M_MDIV << 12) + (U_M_PDIV << 4) + U_M_SDIV,
+//	       &clk_power->upllcon);
 	
 	/* some delay between MPLL and UPLL */
-	pll_delay(8000);
+//	pll_delay(8000);
 	
 	/* set up the I/O ports */
 	writel(0x007FFFFF, &gpio->gpacon);
@@ -122,8 +122,8 @@ int board_init(void)
 {
 	#if defined(CONFIG_AT2440EVB)
 	gd->bd->bi_arch_number = MACH_TYPE_AT2440EVB;
-	#elif defined(CONFIG_S3C2440)
-	gd->bd->bi_arch_number = MACH_TYPE_SMDK2440;
+//	#elif defined(CONFIG_S3C2440)
+//	gd->bd->bi_arch_number = MACH_TYPE_SMDK2440;
 	#else
 	/* arch number of SMDK2410-Board */
 	gd->bd->bi_arch_number = MACH_TYPE_SMDK2410;

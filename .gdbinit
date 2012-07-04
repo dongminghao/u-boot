@@ -62,9 +62,9 @@ monitor MemU32 0x4A00000C = 0x00007FFF #INTSUBMSK
 
 monitor MemU32 0x4C000000 = 0x00FFFFFF 
 
-monitor MemU32 0x4C000014 = 0x00000005 
+monitor MemU32 0x4C000014 = 0x00000007 
 
-monitor MemU32 0x4C000004 = 0x0005C011 
+monitor MemU32 0x4C000004 = 0x000B8022 
 
  
 
@@ -118,8 +118,8 @@ set remote memory-write-packet-size fixed
 load u-boot
 
 b _start 
+b relocate_code
 
 #load 
 
-continue 
 

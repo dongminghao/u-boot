@@ -184,15 +184,15 @@ copyex:
         str     r1,[r0]	
 
 #if defined(CONFIG_S3C2440)
+      /* Make sure we get FCLK:HCLK:PCLK = 1:3:6 */
+        ldr     r0, =CAMDIVN
+        mov     r1, #0
+        str     r1, [r0]
 	/* FCLK:HCLK:PCLK = 1:3:6 */
 	ldr	r0, =CLKDIVN
 	mov	r1, #7
 	str	r1, [r0]
-      /* Make sure we get FCLK:HCLK:PCLK = 1:3:6 
-        ldr     r0, =CAMDIVN
-        mov     r1, #0
-        str     r1, [r0]
-	*/
+	
         /* Clock asynchronous mode */
         mrc     p15, 0, r1, c1, c0, 0
         orr     r1, r1, #0xc0000000
@@ -326,6 +326,7 @@ clbss_l:str	r2, [r0]		/* clear loop...		    */
 
 	bl coloured_LED_init
 	bl red_led_on
+
 #endif
 
 /*

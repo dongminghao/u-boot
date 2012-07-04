@@ -35,19 +35,15 @@
  */
 #define CONFIG_ARM920T		/* This is an ARM920T Core */
 #define CONFIG_S3C24X0		/* in a SAMSUNG S3C24x0-type SoC */
-// #define CONFIG_S3C2410		/* specifically a SAMSUNG S3C2410 SoC */
-#define CONFIG_SMDK2410		/* on a SAMSUNG SMDK2410 Board */
 #define CONFIG_AT2440EVB
 #define CONFIG_S3C2440
 #define CONFIG_SKIP_LOWLEVEL_INIT
 
-// #define CONFIG_SYS_TEXT_BASE	0x0
-#define CONFIG_SYS_TEXT_BASE	0x33F00000
+#define CONFIG_SYS_TEXT_BASE	0x32000000
 
 #define CONFIG_SYS_ARM_CACHE_WRITETHROUGH
 #define DEBUG 1
 /* input clock of PLL (the SMDK2410 has 12MHz input clock) */
-//#define CONFIG_SYS_CLK_FREQ	12000000
 #define CONFIG_SYS_CLK_FREQ	16934400
 
 #undef CONFIG_USE_IRQ		/* we don't need IRQ/FIQ stuff */

@@ -8,23 +8,7 @@
  * and Jeff Brown.
  * Some bits are taken from linux driver writen by adrian@humboldt.co.uk.
  *
- * This software may be used and distributed according to the
- * terms of the GNU Public License, Version 2, incorporated
- * herein by reference.
- *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * Version 2 as published by the Free Software Foundation.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston,
- * MA 02111-1307 USA
+ * SPDX-License-Identifier:	GPL-2.0
  */
 
 #ifndef _ASM_FSL_I2C_H_
@@ -54,6 +38,7 @@ typedef struct fsl_i2c {
 #define I2C_CR_MTX	0x10
 #define I2C_CR_TXAK	0x08
 #define I2C_CR_RSTA	0x04
+#define I2C_CR_BIT6	0x02	/* required for workaround A004447 */
 #define I2C_CR_BCST	0x01
 
 	u8 sr;		/* I2C status register */

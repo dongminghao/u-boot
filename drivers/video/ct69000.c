@@ -4,23 +4,7 @@
  * Ported to U-Boot:
  * (C) Copyright 2002 Denis Peter, MPL AG Switzerland
  *
- * See file CREDITS for list of people who contributed to this
- * project.
- *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License as
- * published by the Free Software Foundation; either version 2 of
- * the License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston,
- * MA 02111-1307 USA
+ * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>
@@ -272,9 +256,6 @@ struct ctfb_chips_properties {
 
 static const struct ctfb_chips_properties chips[] = {
 	{PCI_DEVICE_ID_CT_69000, 0x200000, 1, 4, -2, 3, 257, 100, 220},
-#ifdef CONFIG_USE_CPCIDVI
-	{PCI_DEVICE_ID_CT_69030, 0x400000, 1, 4, -2, 3, 257, 100, 220},
-#endif
 	{PCI_DEVICE_ID_CT_65555, 0x100000, 16, 4, 0, 1, 255, 48, 220},	/* NOT TESTED */
 	{0, 0, 0, 0, 0, 0, 0, 0, 0}	/* Terminator */
 };
@@ -960,9 +941,6 @@ SetDrawingEngine (int bits_per_pixel)
 */
 static struct pci_device_id supported[] = {
 	{PCI_VENDOR_ID_CT, PCI_DEVICE_ID_CT_69000},
-#ifdef CONFIG_USE_CPCIDVI
-	{PCI_VENDOR_ID_CT, PCI_DEVICE_ID_CT_69030},
-#endif
 	{}
 };
 
@@ -1127,22 +1105,7 @@ video_hw_init (void)
 	pGD->cprBase = pci_mem_base;	/* Dummy */
 	/* set up Hardware */
 
-#ifdef CONFIG_USE_CPCIDVI
-	if (device_id == PCI_DEVICE_ID_CT_69030) {
-		ctWrite (CT_MSR_W_O, 0x0b);
-		ctWrite (0x3cd, 0x13);
-		ctWrite_i (CT_FP_O, 0x02, 0x00);
-		ctWrite_i (CT_FP_O, 0x05, 0x00);
-		ctWrite_i (CT_FP_O, 0x06, 0x00);
-		ctWrite (0x3c2, 0x0b);
-		ctWrite_i (CT_FP_O, 0x02, 0x10);
-		ctWrite_i (CT_FP_O, 0x01, 0x09);
-	} else {
-		ctWrite (CT_MSR_W_O, 0x01);
-	}
-#else
 	ctWrite (CT_MSR_W_O, 0x01);
-#endif
 
 	/* set the extended Registers */
 	ctLoadRegs (CT_XR_O, xreg);

@@ -2,23 +2,7 @@
  * (C) Copyright 2001
  * Gerald Van Baren, Custom IDEAS, vanbaren@cideas.com.
  *
- * See file CREDITS for list of people who contributed to this
- * project.
- *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License as
- * published by the Free Software Foundation; either version 2 of
- * the License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston,
- * MA 02111-1307 USA
+ * SPDX-License-Identifier:	GPL-2.0+
  */
 
 /*
@@ -27,6 +11,7 @@
  */
 
 #include <common.h>
+#include <dm.h>
 #include <miiphy.h>
 #include <phy.h>
 
@@ -129,6 +114,8 @@ void miiphy_register(const char *name,
 	if (new_dev == NULL || ldev == NULL) {
 		printf("miiphy_register: cannot allocate memory for '%s'\n",
 			name);
+		free(ldev);
+		mdio_free(new_dev);
 		return;
 	}
 
@@ -167,9 +154,14 @@ struct mii_dev *mdio_alloc(void)
 	return bus;
 }
 
+void mdio_free(struct mii_dev *bus)
+{
+	free(bus);
+}
+
 int mdio_register(struct mii_dev *bus)
 {
-	if (!bus || !bus->name || !bus->read || !bus->write)
+	if (!bus || !bus->read || !bus->write)
 		return -1;
 
 	/* check if we have unique name */
@@ -184,6 +176,20 @@ int mdio_register(struct mii_dev *bus)
 
 	if (!current_mii)
 		current_mii = bus;
+
+	return 0;
+}
+
+int mdio_unregister(struct mii_dev *bus)
+{
+	if (!bus)
+		return 0;
+
+	/* delete it from the list */
+	list_del(&bus->link);
+
+	if (current_mii == bus)
+		current_mii = NULL;
 
 	return 0;
 }

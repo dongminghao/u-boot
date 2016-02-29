@@ -1,23 +1,7 @@
 /*
  * Copyright 2009-2011 Freescale Semiconductor, Inc.
  *
- * See file CREDITS for list of people who contributed to this
- * project.
- *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License as
- * published by the Free Software Foundation; either version 2 of
- * the License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston,
- * MA 02111-1307 USA
+ * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>
@@ -28,7 +12,7 @@
 #include <asm/cache.h>
 #include <asm/immap_85xx.h>
 #include <asm/fsl_law.h>
-#include <asm/fsl_ddr_sdram.h>
+#include <fsl_ddr_sdram.h>
 #include <asm/fsl_serdes.h>
 #include <asm/fsl_portals.h>
 #include <asm/fsl_liodn.h>
@@ -40,7 +24,7 @@
 
 #include "../common/ngpixis.h"
 #include "../common/fman.h"
-#include <asm/fsl_dtsec.h>
+#include <fsl_dtsec.h>
 
 #define EMI_NONE	0xffffffff
 #define EMI_MASK	0xf0000000
@@ -52,6 +36,9 @@
 #define EMI2_SLOT5	0x30000000	/* bank3 ABCD */
 #define EMI1_MASK	0xc0000000
 #define EMI2_MASK	0x30000000
+
+#define PHY_BASE_ADDR	0x00
+#define PHY_BASE_ADDR_SLOT5	0x10
 
 static int mdio_mux[NUM_FM_PORTS];
 
@@ -66,6 +53,15 @@ static char *mdio_names[16] = {
 	NULL, NULL, NULL,
 	"P4080DS_MDIO12",
 	NULL, NULL, NULL,
+};
+
+/*
+ * Mapping of all 18 SERDES lanes to board slots. A value of '0' here means
+ * that the mapping must be determined dynamically, or that the lane maps to
+ * something other than a board slot.
+ */
+static u8 lane_to_slot[] = {
+	1, 1, 2, 2, 3, 3, 3, 3, 6, 6, 4, 4, 4, 4, 5, 5, 5, 5
 };
 
 static char *p4080ds_mdio_name_for_muxval(u32 muxval)
@@ -290,15 +286,6 @@ void fdt_fixup_board_enet(void *fdt)
 	}
 }
 
-enum board_slots {
-	SLOT1 = 1,
-	SLOT2,
-	SLOT3,
-	SLOT4,
-	SLOT5,
-	SLOT6,
-};
-
 int board_eth_init(bd_t *bis)
 {
 #ifdef CONFIG_FMAN_ENET
@@ -306,27 +293,7 @@ int board_eth_init(bd_t *bis)
 	int i;
 	struct fsl_pq_mdio_info dtsec_mdio_info;
 	struct tgec_mdio_info tgec_mdio_info;
-
-	u8 lane_to_slot[] = {
-		SLOT1, /* 0 - Bank 1:A */
-		SLOT1, /* 1 - Bank 1:B */
-		SLOT2, /* 2 - Bank 1:C */
-		SLOT2, /* 3 - Bank 1:D */
-		SLOT3, /* 4 - Bank 1:E */
-		SLOT3, /* 5 - Bank 1:F */
-		SLOT3, /* 6 - Bank 1:G */
-		SLOT3, /* 7 - Bank 1:H */
-		SLOT6, /* 8 - Bank 1:I */
-		SLOT6, /* 9 - Bank 1:J */
-		SLOT4, /* 10 - Bank 2:A */
-		SLOT4, /* 11 - Bank 2:B */
-		SLOT4, /* 12 - Bank 2:C */
-		SLOT4, /* 13 - Bank 2:D */
-		SLOT5, /* 14 - Bank 3:A */
-		SLOT5, /* 15 - Bank 3:B */
-		SLOT5, /* 16 - Bank 3:C */
-		SLOT5, /* 17 - Bank 3:D */
-	};
+	struct mii_dev *bus;
 
 	/* Initialize the mdio_mux array so we can recognize empty elements */
 	for (i = 0; i < NUM_FM_PORTS; i++)
@@ -380,17 +347,17 @@ int board_eth_init(bd_t *bis)
 				break;
 			slot = lane_to_slot[lane];
 			switch (slot) {
-			case SLOT3:
+			case 3:
 				mdio_mux[i] = EMI1_SLOT3;
 				fm_info_set_mdio(i,
 					mii_dev_for_muxval(mdio_mux[i]));
 				break;
-			case SLOT4:
+			case 4:
 				mdio_mux[i] = EMI1_SLOT4;
 				fm_info_set_mdio(i,
 					mii_dev_for_muxval(mdio_mux[i]));
 				break;
-			case SLOT5:
+			case 5:
 				mdio_mux[i] = EMI1_SLOT5;
 				fm_info_set_mdio(i,
 					mii_dev_for_muxval(mdio_mux[i]));
@@ -407,6 +374,9 @@ int board_eth_init(bd_t *bis)
 			break;
 		}
 	}
+	bus = mii_dev_for_muxval(EMI1_SLOT5);
+	set_sgmii_phy(bus, FM1_DTSEC1,
+		      CONFIG_SYS_NUM_FM1_DTSEC, PHY_BASE_ADDR_SLOT5);
 
 	for (i = FM1_10GEC1; i < FM1_10GEC1 + CONFIG_SYS_NUM_FM1_10GEC; i++) {
 		int idx = i - FM1_10GEC1, lane, slot;
@@ -417,12 +387,12 @@ int board_eth_init(bd_t *bis)
 				break;
 			slot = lane_to_slot[lane];
 			switch (slot) {
-			case SLOT4:
+			case 4:
 				mdio_mux[i] = EMI2_SLOT4;
 				fm_info_set_mdio(i,
 					mii_dev_for_muxval(mdio_mux[i]));
 				break;
-			case SLOT5:
+			case 5:
 				mdio_mux[i] = EMI2_SLOT5;
 				fm_info_set_mdio(i,
 					mii_dev_for_muxval(mdio_mux[i]));
@@ -444,17 +414,17 @@ int board_eth_init(bd_t *bis)
 				break;
 			slot = lane_to_slot[lane];
 			switch (slot) {
-			case SLOT3:
+			case 3:
 				mdio_mux[i] = EMI1_SLOT3;
 				fm_info_set_mdio(i,
 					mii_dev_for_muxval(mdio_mux[i]));
 				break;
-			case SLOT4:
+			case 4:
 				mdio_mux[i] = EMI1_SLOT4;
 				fm_info_set_mdio(i,
 					mii_dev_for_muxval(mdio_mux[i]));
 				break;
-			case SLOT5:
+			case 5:
 				mdio_mux[i] = EMI1_SLOT5;
 				fm_info_set_mdio(i,
 					mii_dev_for_muxval(mdio_mux[i]));
@@ -472,6 +442,11 @@ int board_eth_init(bd_t *bis)
 		}
 	}
 
+	bus = mii_dev_for_muxval(EMI1_SLOT3);
+	set_sgmii_phy(bus, FM2_DTSEC1, CONFIG_SYS_NUM_FM2_DTSEC, PHY_BASE_ADDR);
+	bus = mii_dev_for_muxval(EMI1_SLOT4);
+	set_sgmii_phy(bus, FM2_DTSEC1, CONFIG_SYS_NUM_FM2_DTSEC, PHY_BASE_ADDR);
+
 	for (i = FM2_10GEC1; i < FM2_10GEC1 + CONFIG_SYS_NUM_FM2_10GEC; i++) {
 		int idx = i - FM2_10GEC1, lane, slot;
 		switch (fm_info_get_enet_if(i)) {
@@ -481,12 +456,12 @@ int board_eth_init(bd_t *bis)
 				break;
 			slot = lane_to_slot[lane];
 			switch (slot) {
-			case SLOT4:
+			case 4:
 				mdio_mux[i] = EMI2_SLOT4;
 				fm_info_set_mdio(i,
 					mii_dev_for_muxval(mdio_mux[i]));
 				break;
-			case SLOT5:
+			case 5:
 				mdio_mux[i] = EMI2_SLOT5;
 				fm_info_set_mdio(i,
 					mii_dev_for_muxval(mdio_mux[i]));

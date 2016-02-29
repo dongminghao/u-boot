@@ -7,7 +7,6 @@
 #ifndef _PPC_IO_H
 #define _PPC_IO_H
 
-#include <linux/config.h>
 #include <asm/byteorder.h>
 
 #ifdef CONFIG_ADDR_MAP
@@ -124,10 +123,12 @@ static inline void isync(void)
 #define iobarrier_r()  eieio()
 #define iobarrier_w()  eieio()
 
+#define mb()	sync()
+#define isb()	isync()
+
 /*
  * Non ordered and non-swapping "raw" accessors
  */
-#define __iomem
 #define PCI_FIX_ADDR(addr)	(addr)
 
 static inline unsigned char __raw_readb(const volatile void __iomem *addr)
@@ -162,9 +163,9 @@ static inline void __raw_writel(unsigned int v, volatile void __iomem *addr)
  * is actually performed (i.e. the data has come back) before we start
  * executing any following instructions.
  */
-extern inline int in_8(const volatile unsigned char __iomem *addr)
+static inline u8 in_8(const volatile unsigned char __iomem *addr)
 {
-	int ret;
+	u8 ret;
 
 	__asm__ __volatile__(
 		"sync; lbz%U1%X1 %0,%1;\n"
@@ -173,7 +174,7 @@ extern inline int in_8(const volatile unsigned char __iomem *addr)
 	return ret;
 }
 
-extern inline void out_8(volatile unsigned char __iomem *addr, int val)
+static inline void out_8(volatile unsigned char __iomem *addr, u8 val)
 {
 	__asm__ __volatile__("sync;\n"
 			     "stb%U0%X0 %1,%0;\n"
@@ -181,9 +182,9 @@ extern inline void out_8(volatile unsigned char __iomem *addr, int val)
 			     : "r" (val));
 }
 
-extern inline int in_le16(const volatile unsigned short __iomem *addr)
+static inline u16 in_le16(const volatile unsigned short __iomem *addr)
 {
-	int ret;
+	u16 ret;
 
 	__asm__ __volatile__("sync; lhbrx %0,0,%1;\n"
 			     "twi 0,%0,0;\n"
@@ -192,9 +193,9 @@ extern inline int in_le16(const volatile unsigned short __iomem *addr)
 	return ret;
 }
 
-extern inline int in_be16(const volatile unsigned short __iomem *addr)
+static inline u16 in_be16(const volatile unsigned short __iomem *addr)
 {
-	int ret;
+	u16 ret;
 
 	__asm__ __volatile__("sync; lhz%U1%X1 %0,%1;\n"
 			     "twi 0,%0,0;\n"
@@ -202,20 +203,20 @@ extern inline int in_be16(const volatile unsigned short __iomem *addr)
 	return ret;
 }
 
-extern inline void out_le16(volatile unsigned short __iomem *addr, int val)
+static inline void out_le16(volatile unsigned short __iomem *addr, u16 val)
 {
 	__asm__ __volatile__("sync; sthbrx %1,0,%2" : "=m" (*addr) :
 			      "r" (val), "r" (addr));
 }
 
-extern inline void out_be16(volatile unsigned short __iomem *addr, int val)
+static inline void out_be16(volatile unsigned short __iomem *addr, u16 val)
 {
 	__asm__ __volatile__("sync; sth%U0%X0 %1,%0" : "=m" (*addr) : "r" (val));
 }
 
-extern inline unsigned in_le32(const volatile unsigned __iomem *addr)
+static inline u32 in_le32(const volatile unsigned __iomem *addr)
 {
-	unsigned ret;
+	u32 ret;
 
 	__asm__ __volatile__("sync; lwbrx %0,0,%1;\n"
 			     "twi 0,%0,0;\n"
@@ -224,9 +225,9 @@ extern inline unsigned in_le32(const volatile unsigned __iomem *addr)
 	return ret;
 }
 
-extern inline unsigned in_be32(const volatile unsigned __iomem *addr)
+static inline u32 in_be32(const volatile unsigned __iomem *addr)
 {
-	unsigned ret;
+	u32 ret;
 
 	__asm__ __volatile__("sync; lwz%U1%X1 %0,%1;\n"
 			     "twi 0,%0,0;\n"
@@ -234,13 +235,13 @@ extern inline unsigned in_be32(const volatile unsigned __iomem *addr)
 	return ret;
 }
 
-extern inline void out_le32(volatile unsigned __iomem *addr, int val)
+static inline void out_le32(volatile unsigned __iomem *addr, u32 val)
 {
 	__asm__ __volatile__("sync; stwbrx %1,0,%2" : "=m" (*addr) :
 			     "r" (val), "r" (addr));
 }
 
-extern inline void out_be32(volatile unsigned __iomem *addr, int val)
+static inline void out_be32(volatile unsigned __iomem *addr, u32 val)
 {
 	__asm__ __volatile__("sync; stw%U0%X0 %1,%0" : "=m" (*addr) : "r" (val));
 }
@@ -295,7 +296,7 @@ static inline void *
 map_physmem(phys_addr_t paddr, unsigned long len, unsigned long flags)
 {
 #ifdef CONFIG_ADDR_MAP
-	return (void *)(addrmap_phys_to_virt(paddr));
+	return addrmap_phys_to_virt(paddr);
 #else
 	return (void *)((unsigned long)paddr);
 #endif

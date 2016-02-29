@@ -1,5 +1,5 @@
 /*
- * U-boot - Configuration file for BF537 PNAV board
+ * U-Boot - Configuration file for BF537 PNAV board
  */
 
 #ifndef __CONFIG_BF537_PNAV_H__
@@ -65,9 +65,6 @@
 #define CONFIG_RMII
 #endif
 #define CONFIG_HOSTNAME		bf537-pnav
-/* Uncomment next line to use fixed MAC address */
-/* #define CONFIG_ETHADDR	02:80:ad:24:21:18 */
-
 
 /*
  * Flash Settings
@@ -85,8 +82,6 @@
 #define CONFIG_BFIN_SPI
 #define CONFIG_ENV_SPI_MAX_HZ	30000000
 #define CONFIG_SF_DEFAULT_SPEED	30000000
-#define CONFIG_SPI_FLASH
-#define CONFIG_SPI_FLASH_STMICRO
 
 
 /*
@@ -111,8 +106,8 @@
  * it linked after the configuration sector.
  */
 # define LDS_BOARD_TEXT \
-	arch/blackfin/lib/libblackfin.o (.text*); \
-	arch/blackfin/cpu/libblackfin.o (.text*); \
+	arch/blackfin/lib/built-in.o (.text*); \
+	arch/blackfin/cpu/built-in.o (.text*); \
 	. = DEFINED(env_offset) ? env_offset : .; \
 	common/env_embedded.o (.text*);
 #endif
@@ -142,15 +137,14 @@
 /*
  * I2C settings
  */
-#define CONFIG_BFIN_TWI_I2C	1
-#define CONFIG_HARD_I2C		1
+#define CONFIG_SYS_I2C
+#define CONFIG_SYS_I2C_ADI
 
 
 /*
  * Misc Settings
  */
 #define CONFIG_BAUDRATE		115200
-#define CONFIG_MISC_INIT_R
 #define CONFIG_RTC_BFIN
 #define CONFIG_UART_CONSOLE	0
 

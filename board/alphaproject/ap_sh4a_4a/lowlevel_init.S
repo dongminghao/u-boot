@@ -2,19 +2,9 @@
  * Copyright (C) 2011, 2012 Nobuhiro Iwamatsu <nobuhiro.iwamatsu.yj@renesas.com>
  * Copyright (C) 2011, 2012 Renesas Solutions Corp.
  *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License as
- * published by the Free Software Foundation; either version 2 of
- * the License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
+ * SPDX-License-Identifier:	GPL-2.0+
  */
 #include <config.h>
-#include <version.h>
 #include <asm/processor.h>
 #include <asm/macro.h>
 
@@ -330,7 +320,7 @@ init_dbsc3_ctrl_533:
 DBKIND_A:	.long	0xFE800020
 DBKIND_D:	.long	0x00000005
 DBCONF_A:	.long	0xFE800024
-DBCONF_D:	.long	0x0D020901
+DBCONF_D:	.long	0x0D020A01
 
 DBTR0_A:	.long	0xFE800040
 DBTR0_D_533:.long	0x00000004

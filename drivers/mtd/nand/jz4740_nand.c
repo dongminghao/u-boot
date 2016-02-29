@@ -4,10 +4,7 @@
  * Copyright (c) 2007 Ingenic Semiconductor Inc.
  * Author: <jlwei@ingenic.cn>
  *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License as
- * published by the Free Software Foundation; either version 2 of
- * the License, or (at your option) any later version.
+ * SPDX-License-Identifier:	GPL-2.0+
  */
 #include <common.h>
 
@@ -19,7 +16,6 @@
 #define JZ_NAND_CMD_ADDR (JZ_NAND_DATA_ADDR + 0x8000)
 #define JZ_NAND_ADDR_ADDR (JZ_NAND_DATA_ADDR + 0x10000)
 
-#define BIT(x) (1 << (x))
 #define JZ_NAND_ECC_CTRL_ENCODING	BIT(3)
 #define JZ_NAND_ECC_CTRL_RS		BIT(2)
 #define JZ_NAND_ECC_CTRL_RESET		BIT(1)
@@ -253,9 +249,10 @@ int board_nand_init(struct nand_chip *nand)
 	nand->ecc.mode		= NAND_ECC_HW_OOB_FIRST;
 	nand->ecc.size		= CONFIG_SYS_NAND_ECCSIZE;
 	nand->ecc.bytes		= CONFIG_SYS_NAND_ECCBYTES;
+	nand->ecc.strength	= 4;
 	nand->ecc.layout	= &qi_lb60_ecclayout_2gb;
 	nand->chip_delay	= 50;
-	nand->options		= NAND_USE_FLASH_BBT;
+	nand->bbt_options	|= NAND_BBT_USE_FLASH;
 
 	return 0;
 }

@@ -3,24 +3,7 @@
  *
  * Written by: Rafal Jaworowski <raj@semihalf.com>
  *
- * See file CREDITS for list of people who contributed to this
- * project.
- *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License as
- * published by the Free Software Foundation; either version 2 of
- * the License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston,
- * MA 02111-1307 USA
- *
+ * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <config.h>
@@ -128,6 +111,11 @@ static int dev_stor_get(int type, int first, int *more, struct device_info *di)
 			return 0;
 		else
 			found = 1;
+
+		/* provide hint if there are more devices in
+		 * this group to enumerate */
+		if (1 < specs[type].max_dev)
+			*more = 1;
 
 	} else {
 		for (i = 0; i < specs[type].max_dev; i++)
@@ -357,19 +345,6 @@ int dev_close_stor(void *cookie)
 }
 
 
-static int dev_stor_index(block_dev_desc_t *dd)
-{
-	int i, type;
-
-	type = dev_stor_type(dd);
-	for (i = 0; i < specs[type].max_dev; i++)
-		if (dd == get_dev(specs[type].name, i))
-			return i;
-
-	return (specs[type].max_dev);
-}
-
-
 lbasize_t dev_read_stor(void *cookie, void *buf, lbasize_t len, lbastart_t start)
 {
 	int type;
@@ -386,5 +361,5 @@ lbasize_t dev_read_stor(void *cookie, void *buf, lbasize_t len, lbastart_t start
 		return 0;
 	}
 
-	return (dd->block_read(dev_stor_index(dd), start, len, buf));
+	return dd->block_read(dd, start, len, buf);
 }

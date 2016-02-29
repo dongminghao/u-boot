@@ -1,5 +1,5 @@
 /*
- * U-boot - Configuration file for BR4 Appliance
+ * U-Boot - Configuration file for BR4 Appliance
  *
  * based on bf537-stamp.h
  * Copyright (c) Switchfin Org. <dpn@switchfin.org>
@@ -69,9 +69,6 @@
 #endif
 #define CONFIG_HOSTNAME		br4
 #define CONFIG_TFTP_BLOCKSIZE	4404
-/* Uncomment next line to use fixed MAC address */
-/* #define CONFIG_ETHADDR	5c:38:1a:80:a7:00 */
-
 
 /*
  * Flash Settings
@@ -85,8 +82,6 @@
 #define CONFIG_BFIN_SPI
 #define CONFIG_ENV_SPI_MAX_HZ	30000000
 #define CONFIG_SF_DEFAULT_SPEED	30000000
-#define CONFIG_SPI_FLASH
-#define CONFIG_SPI_FLASH_STMICRO
 
 
 /*
@@ -102,8 +97,8 @@
 /*
  * I2C Settings
  */
-#define CONFIG_BFIN_TWI_I2C
-#define CONFIG_HARD_I2C
+#define CONFIG_SYS_I2C
+#define CONFIG_SYS_I2C_ADI
 
 
 /*
@@ -131,11 +126,9 @@
 #define CONFIG_BAUDRATE		115200
 #define CONFIG_RTC_BFIN
 #define CONFIG_UART_CONSOLE	0
-#define CONFIG_SYS_PROMPT	"br4>"
 #define CONFIG_BOOTCOMMAND	"run nandboot"
 #define CONFIG_BOOTDELAY	2
 #define CONFIG_LOADADDR		0x2000000
-
 
 /*
  * Pull in common ADI header for remaining command/environment setup

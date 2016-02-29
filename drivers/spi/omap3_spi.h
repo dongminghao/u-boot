@@ -8,32 +8,21 @@
  *
  * Modified by Ruslan Araslanov <ruslan.araslanov@vitecmm.com>
  *
- * See file CREDITS for list of people who contributed to this
- * project.
- *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License as
- * published by the Free Software Foundation; either version 2 of
- * the License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston,
- * MA 02111-1307 USA
+ * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef _OMAP3_SPI_H_
 #define _OMAP3_SPI_H_
 
+#if defined(CONFIG_AM33XX) || defined(CONFIG_AM43XX)
+#define OMAP3_MCSPI1_BASE	0x48030100
+#define OMAP3_MCSPI2_BASE	0x481A0100
+#else
 #define OMAP3_MCSPI1_BASE	0x48098000
 #define OMAP3_MCSPI2_BASE	0x4809A000
 #define OMAP3_MCSPI3_BASE	0x480B8000
 #define OMAP3_MCSPI4_BASE	0x480BA000
+#endif
 
 #define OMAP3_MCSPI_MAX_FREQ	48000000
 
@@ -63,39 +52,40 @@ struct mcspi {
 
 /* per-register bitmasks */
 #define OMAP3_MCSPI_SYSCONFIG_SMARTIDLE (2 << 3)
-#define OMAP3_MCSPI_SYSCONFIG_ENAWAKEUP (1 << 2)
-#define OMAP3_MCSPI_SYSCONFIG_AUTOIDLE	(1 << 0)
-#define OMAP3_MCSPI_SYSCONFIG_SOFTRESET (1 << 1)
+#define OMAP3_MCSPI_SYSCONFIG_ENAWAKEUP BIT(2)
+#define OMAP3_MCSPI_SYSCONFIG_AUTOIDLE	BIT(0)
+#define OMAP3_MCSPI_SYSCONFIG_SOFTRESET BIT(1)
 
-#define OMAP3_MCSPI_SYSSTATUS_RESETDONE (1 << 0)
+#define OMAP3_MCSPI_SYSSTATUS_RESETDONE BIT(0)
 
-#define OMAP3_MCSPI_MODULCTRL_SINGLE	(1 << 0)
-#define OMAP3_MCSPI_MODULCTRL_MS	(1 << 2)
-#define OMAP3_MCSPI_MODULCTRL_STEST	(1 << 3)
+#define OMAP3_MCSPI_MODULCTRL_SINGLE	BIT(0)
+#define OMAP3_MCSPI_MODULCTRL_MS	BIT(2)
+#define OMAP3_MCSPI_MODULCTRL_STEST	BIT(3)
 
-#define OMAP3_MCSPI_CHCONF_PHA		(1 << 0)
-#define OMAP3_MCSPI_CHCONF_POL		(1 << 1)
-#define OMAP3_MCSPI_CHCONF_CLKD_MASK	(0x0f << 2)
-#define OMAP3_MCSPI_CHCONF_EPOL		(1 << 6)
-#define OMAP3_MCSPI_CHCONF_WL_MASK	(0x1f << 7)
-#define OMAP3_MCSPI_CHCONF_TRM_RX_ONLY	(0x01 << 12)
-#define OMAP3_MCSPI_CHCONF_TRM_TX_ONLY	(0x02 << 12)
-#define OMAP3_MCSPI_CHCONF_TRM_MASK	(0x03 << 12)
-#define OMAP3_MCSPI_CHCONF_DMAW		(1 << 14)
-#define OMAP3_MCSPI_CHCONF_DMAR		(1 << 15)
-#define OMAP3_MCSPI_CHCONF_DPE0		(1 << 16)
-#define OMAP3_MCSPI_CHCONF_DPE1		(1 << 17)
-#define OMAP3_MCSPI_CHCONF_IS		(1 << 18)
-#define OMAP3_MCSPI_CHCONF_TURBO	(1 << 19)
-#define OMAP3_MCSPI_CHCONF_FORCE	(1 << 20)
+#define OMAP3_MCSPI_CHCONF_PHA		BIT(0)
+#define OMAP3_MCSPI_CHCONF_POL		BIT(1)
+#define OMAP3_MCSPI_CHCONF_CLKD_MASK	GENMASK(5, 2)
+#define OMAP3_MCSPI_CHCONF_EPOL		BIT(6)
+#define OMAP3_MCSPI_CHCONF_WL_MASK	GENMASK(11, 7)
+#define OMAP3_MCSPI_CHCONF_TRM_RX_ONLY	BIT(12)
+#define OMAP3_MCSPI_CHCONF_TRM_TX_ONLY	BIT(13)
+#define OMAP3_MCSPI_CHCONF_TRM_MASK	GENMASK(13, 12)
+#define OMAP3_MCSPI_CHCONF_DMAW		BIT(14)
+#define OMAP3_MCSPI_CHCONF_DMAR		BIT(15)
+#define OMAP3_MCSPI_CHCONF_DPE0		BIT(16)
+#define OMAP3_MCSPI_CHCONF_DPE1		BIT(17)
+#define OMAP3_MCSPI_CHCONF_IS		BIT(18)
+#define OMAP3_MCSPI_CHCONF_TURBO	BIT(19)
+#define OMAP3_MCSPI_CHCONF_FORCE	BIT(20)
 
-#define OMAP3_MCSPI_CHSTAT_RXS		(1 << 0)
-#define OMAP3_MCSPI_CHSTAT_TXS		(1 << 1)
-#define OMAP3_MCSPI_CHSTAT_EOT		(1 << 2)
+#define OMAP3_MCSPI_CHSTAT_RXS		BIT(0)
+#define OMAP3_MCSPI_CHSTAT_TXS		BIT(1)
+#define OMAP3_MCSPI_CHSTAT_EOT		BIT(2)
 
-#define OMAP3_MCSPI_CHCTRL_EN		(1 << 0)
+#define OMAP3_MCSPI_CHCTRL_EN		BIT(0)
+#define OMAP3_MCSPI_CHCTRL_DIS		(0 << 0)
 
-#define OMAP3_MCSPI_WAKEUPENABLE_WKEN	(1 << 0)
+#define OMAP3_MCSPI_WAKEUPENABLE_WKEN	BIT(0)
 
 struct omap3_spi_slave {
 	struct spi_slave slave;
@@ -109,11 +99,11 @@ static inline struct omap3_spi_slave *to_omap3_spi(struct spi_slave *slave)
 	return container_of(slave, struct omap3_spi_slave, slave);
 }
 
-int omap3_spi_txrx(struct spi_slave *slave, unsigned int len, const u8 *txp,
-			u8 *rxp, unsigned long flags);
-int omap3_spi_write(struct spi_slave *slave, unsigned int len, const u8 *txp,
+int omap3_spi_txrx(struct spi_slave *slave, unsigned int len, const void *txp,
+			void *rxp, unsigned long flags);
+int omap3_spi_write(struct spi_slave *slave, unsigned int len, const void *txp,
 		    unsigned long flags);
-int omap3_spi_read(struct spi_slave *slave, unsigned int len, u8 *rxp,
+int omap3_spi_read(struct spi_slave *slave, unsigned int len, void *rxp,
 		   unsigned long flags);
 
 #endif /* _OMAP3_SPI_H_ */

@@ -2,20 +2,7 @@
  * (C) Copyright 2006-2008
  * Stefan Roese, DENX Software Engineering, sr@denx.de.
  *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License as
- * published by the Free Software Foundation; either version 2 of
- * the License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston,
- * MA 02111-1307 USA
+ * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>
@@ -91,7 +78,7 @@ static int nand_command(int block, int page, uint32_t offs,
 	}
 
 	/* Shift the offset from byte addressing to word addressing. */
-	if (this->options & NAND_BUSWIDTH_16)
+	if ((this->options & NAND_BUSWIDTH_16) && !nand_opcode_8bits(cmd))
 		offs >>= 1;
 
 	/* Begin command latch cycle */
@@ -128,6 +115,7 @@ static int nand_command(int block, int page, uint32_t offs,
 static int nand_is_bad_block(int block)
 {
 	struct nand_chip *this = mtd.priv;
+	u_char bb_data[2];
 
 	nand_command(block, 0, CONFIG_SYS_NAND_BAD_BLOCK_POS,
 		NAND_CMD_READOOB);
@@ -136,10 +124,12 @@ static int nand_is_bad_block(int block)
 	 * Read one byte (or two if it's a 16 bit chip).
 	 */
 	if (this->options & NAND_BUSWIDTH_16) {
-		if (readw(this->IO_ADDR_R) != 0xffff)
+		this->read_buf(&mtd, bb_data, 2);
+		if (bb_data[0] != 0xff || bb_data[1] != 0xff)
 			return 1;
 	} else {
-		if (readb(this->IO_ADDR_R) != 0xff)
+		this->read_buf(&mtd, bb_data, 1);
+		if (bb_data[0] != 0xff)
 			return 1;
 	}
 

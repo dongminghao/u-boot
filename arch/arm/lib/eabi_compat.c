@@ -3,17 +3,15 @@
  *
  * (C) Copyright 2009 Wolfgang Denk <wd@denx.de>
  *
- * This program is Free Software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License as
- * published by the Free Software Foundation; either version 2 of the
- * License, or (at your option) any later version.
+ * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>
 
 int raise (int signum)
 {
-#if !defined(CONFIG_SPL_BUILD) || defined(CONFIG_SPL_LIBCOMMON_SUPPORT)
+	/* Even if printf() is available, it's large. Punt it for SPL builds */
+#if !defined(CONFIG_SPL_BUILD)
 	printf("raise: Signal # %d caught\n", signum);
 #endif
 	return 0;
@@ -22,8 +20,19 @@ int raise (int signum)
 /* Dummy function to avoid linker complaints */
 void __aeabi_unwind_cpp_pr0(void)
 {
-};
+}
 
 void __aeabi_unwind_cpp_pr1(void)
 {
-};
+}
+
+/* Copy memory like memcpy, but no return value required.  */
+void __aeabi_memcpy(void *dest, const void *src, size_t n)
+{
+	(void) memcpy(dest, src, n);
+}
+
+void __aeabi_memset(void *dest, size_t n, int c)
+{
+	(void) memset(dest, c, n);
+}

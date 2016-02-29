@@ -16,8 +16,6 @@
 #ifndef __ASM_ARM_ATOMIC_H
 #define __ASM_ARM_ATOMIC_H
 
-#include <linux/config.h>
-
 #ifdef CONFIG_SMP
 #error SMP not supported
 #endif
@@ -27,14 +25,14 @@ typedef struct { volatile int counter; } atomic_t;
 #define ATOMIC_INIT(i)	{ (i) }
 
 #ifdef __KERNEL__
-#include <asm/proc/system.h>
+#include <asm/proc-armv/system.h>
 
 #define atomic_read(v)	((v)->counter)
 #define atomic_set(v,i)	(((v)->counter) = (i))
 
 static inline void atomic_add(int i, volatile atomic_t *v)
 {
-	unsigned long flags;
+	unsigned long flags = 0;
 
 	local_irq_save(flags);
 	v->counter += i;
@@ -43,7 +41,7 @@ static inline void atomic_add(int i, volatile atomic_t *v)
 
 static inline void atomic_sub(int i, volatile atomic_t *v)
 {
-	unsigned long flags;
+	unsigned long flags = 0;
 
 	local_irq_save(flags);
 	v->counter -= i;
@@ -52,7 +50,7 @@ static inline void atomic_sub(int i, volatile atomic_t *v)
 
 static inline void atomic_inc(volatile atomic_t *v)
 {
-	unsigned long flags;
+	unsigned long flags = 0;
 
 	local_irq_save(flags);
 	v->counter += 1;
@@ -61,7 +59,7 @@ static inline void atomic_inc(volatile atomic_t *v)
 
 static inline void atomic_dec(volatile atomic_t *v)
 {
-	unsigned long flags;
+	unsigned long flags = 0;
 
 	local_irq_save(flags);
 	v->counter -= 1;
@@ -70,7 +68,7 @@ static inline void atomic_dec(volatile atomic_t *v)
 
 static inline int atomic_dec_and_test(volatile atomic_t *v)
 {
-	unsigned long flags;
+	unsigned long flags = 0;
 	int val;
 
 	local_irq_save(flags);
@@ -83,7 +81,7 @@ static inline int atomic_dec_and_test(volatile atomic_t *v)
 
 static inline int atomic_add_negative(int i, volatile atomic_t *v)
 {
-	unsigned long flags;
+	unsigned long flags = 0;
 	int val;
 
 	local_irq_save(flags);
@@ -96,7 +94,7 @@ static inline int atomic_add_negative(int i, volatile atomic_t *v)
 
 static inline void atomic_clear_mask(unsigned long mask, unsigned long *addr)
 {
-	unsigned long flags;
+	unsigned long flags = 0;
 
 	local_irq_save(flags);
 	*addr &= ~mask;

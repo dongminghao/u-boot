@@ -1,5 +1,5 @@
 /*
- * U-boot - Configuration file for cm-bf548 board
+ * U-Boot - Configuration file for cm-bf548 board
  */
 
 #ifndef __CONFIG_CM_BF548_H__
@@ -76,8 +76,6 @@
 #define CONFIG_SMC911X_BASE	0x24000000
 #define CONFIG_SMC911X_16_BIT
 #define CONFIG_HOSTNAME		cm-bf548
-/* Uncomment next line to use fixed MAC address */
-/* #define CONFIG_ETHADDR	02:80:ad:24:31:91 */
 
 
 /*
@@ -104,8 +102,8 @@
 /*
  * I2C Settings
  */
-#define CONFIG_BFIN_TWI_I2C	1
-#define CONFIG_HARD_I2C		1
+#define CONFIG_SYS_I2C
+#define CONFIG_SYS_I2C_ADI
 
 
 /*
@@ -118,10 +116,13 @@
 #define CONFIG_BOOTCOMMAND	"run flashboot"
 #define FLASHBOOT_ENV_SETTINGS	"flashboot=bootm 0x20040000\0"
 
+#define CONFIG_ADI_GPIO2
+
 #ifndef __ADSPBF542__
 /* Don't waste time transferring a logo over the UART */
 # if (CONFIG_BFIN_BOOT_MODE != BFIN_BOOT_UART)
 #  define CONFIG_VIDEO
+#  define EASYLOGO_HEADER <asm/bfin_logo_230x230_gzip.h>
 # endif
 # define CONFIG_DEB_DMA_URGENT
 #endif

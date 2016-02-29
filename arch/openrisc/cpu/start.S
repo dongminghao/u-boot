@@ -1,21 +1,9 @@
 /*
  * (C) Copyright 2011, Stefan Kristiansson <stefan.kristiansson@saunalahti.fi>
  * (C) Copyright 2011, Julius Baxter <julius@opencores.org>
+ * (C) Copyright 2014, Franck Jullien <franck.jullien@gmail.com>
  *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License as
- * published by the Free Software Foundation; either version 2 of
- * the License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston,
- * MA 02111-1307 USA
+ * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <config.h>
@@ -26,8 +14,11 @@
 
 #define HANDLE_EXCEPTION			\
 	l.addi	r1, r1, -EXCEPTION_STACK_SIZE	;\
+	l.sw	0x00(r1), r2			;\
 	l.sw	0x1c(r1), r9			;\
-	l.jal	_exception_handler		;\
+	l.movhi r2,hi(_exception_handler)       ;\
+	l.ori   r2,r2,lo(_exception_handler)    ;\
+	l.jalr	r2              		;\
 	 l.nop					;\
 	l.lwz 	r9, 0x1c(r1)			;\
 	l.addi	r1, r1, EXCEPTION_STACK_SIZE	;\
@@ -50,9 +41,48 @@ __reset:
 	l.ori	r3,r0,SPR_SR_SM
 	l.mtspr	r0,r3,SPR_SR
 
+	l.jal	_cur
+	l.nop
+_cur:
+	l.ori	r8, r9, 0		/* Get _cur current address */
+
+	l.movhi	r3, hi(_cur)
+	l.ori	r3, r3, lo(_cur)
+	l.sfeq	r8, r3			/* If we are running at the linked address */
+	l.bf	_no_vector_reloc	/* there is not need for relocation */
+	 l.sub	r8, r8, r3
+
+	l.mfspr	r4, r0, SPR_CPUCFGR
+	l.andi	r4, r4, SPR_CPUCFGR_EVBARP	/* Exception Vector Base Address Register present ? */
+	l.sfnei	r4,0
+	l.bnf	_reloc_vectors
+	l.movhi	r5, 0			/* Destination */
+
+	l.mfspr	r4, r0, SPR_EVBAR
+	l.add	r5, r5, r4
+
+_reloc_vectors:
+	/* Relocate vectors*/
+	l.movhi	r5, 0			/* Destination */
+	l.movhi	r6, hi(__start)		/* Length */
+	l.ori	r6, r6, lo(__start)
+	l.ori	r3, r8, 0
+
+.L_relocvectors:
+	l.lwz	r7, 0(r3)
+	l.sw	0(r5), r7
+	l.addi	r5, r5, 4
+	l.sfeq	r5, r6
+	l.bnf	.L_relocvectors
+	 l.addi	r3, r3, 4
+
+_no_vector_reloc:
+
 	/* Relocate u-boot */
-	l.movhi	r3,hi(__start)		/* source start address */
+	l.movhi	r3,hi(__start)		/* source start offset */
 	l.ori	r3,r3,lo(__start)
+	l.add	r3,r8,r3
+
 	l.movhi	r4,hi(_stext)		/* dest start address */
 	l.ori	r4,r4,lo(_stext)
 	l.movhi	r5,hi(__end)		/* dest end address */
@@ -66,21 +96,9 @@ __reset:
 	l.bf	.L_reloc
 	 l.addi	r4,r4,4			/* delay slot */
 
-#ifdef CONFIG_SYS_RELOCATE_VECTORS
-	/* Relocate vectors from 0xf0000000 to 0x00000000 */
-	l.movhi r4, 0xf000 /* source */
-	l.movhi r5, 0      /* destination */
-	l.addi	r6, r5, CONFIG_SYS_VECTORS_LEN /* length */
-.L_relocvectors:
-	l.lwz	r7, 0(r4)
-	l.sw	0(r5), r7
-	l.addi	r5, r5, 4
-	l.sfeq	r5,r6
-	l.bnf	.L_relocvectors
-	 l.addi	r4,r4, 4
-#endif
-
-	l.j	_start
+	l.movhi	r4,hi(_start)
+	l.ori	r4,r4,lo(_start)
+	l.jr	r4
 	 l.nop
 
 	/* bus error */
@@ -262,8 +280,7 @@ _start:
 	.type	_exception_handler,@function
 
 _exception_handler:
-	/* Store state (r9 already saved)*/
-	l.sw	0x00(r1), r2
+	/* Store state (r2 and r9 already saved)*/
 	l.sw	0x04(r1), r3
 	l.sw	0x08(r1), r4
 	l.sw	0x0c(r1), r5

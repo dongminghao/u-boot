@@ -13,9 +13,7 @@
  * Original Copyrights follow:
  * Copyright (C) 2010 Nokia Corporation
  *
- * This software is distributed under the terms of the GNU General
- * Public License ("GPL") as published by the Free Software Foundation,
- * version 2 of that License.
+ * SPDX-License-Identifier:	GPL-2.0
  */
 
 #ifndef __USB_ULPI_H__
@@ -61,8 +59,17 @@ int ulpi_select_transceiver(struct ulpi_viewport *ulpi_vp, unsigned speed);
  *
  * returns 0 on success, ULPI_ERROR on failure.
  */
-int ulpi_enable_vbus(struct ulpi_viewport *ulpi_vp,
-			int on, int ext_power, int ext_ind);
+int ulpi_set_vbus(struct ulpi_viewport *ulpi_vp, int on, int ext_power);
+
+/*
+ * Configure VBUS indicator
+ * @external		- external VBUS over-current indicator is used
+ * @passthru		- disables ANDing of internal VBUS comparator
+ *                    with external VBUS input
+ * @complement		- inverts the external VBUS input
+ */
+int ulpi_set_vbus_indicator(struct ulpi_viewport *ulpi_vp, int external,
+			int passthru, int complement);
 
 /*
  * Enable/disable pull-down resistors on D+ and D- USB lines.

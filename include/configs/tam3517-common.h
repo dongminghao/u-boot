@@ -4,19 +4,7 @@
  *
  * Copyright (C) 2009 TechNexion Ltd.
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc.
+ * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef __TAM3517_H
@@ -26,7 +14,12 @@
  * High Level Configuration Options
  */
 #define CONFIG_OMAP		/* in a TI OMAP core */
-#define CONFIG_OMAP34XX		/* which is a 34XX */
+#define CONFIG_OMAP_GPIO
+#define CONFIG_OMAP_COMMON
+/* Common ARM Erratas */
+#define CONFIG_ARM_ERRATA_454179
+#define CONFIG_ARM_ERRATA_430973
+#define CONFIG_ARM_ERRATA_621766
 
 #define CONFIG_SYS_TEXT_BASE 0x80008000
 
@@ -35,7 +28,7 @@
 #define CONFIG_EMIF4	/* The chip has EMIF4 controller */
 
 #include <asm/arch/cpu.h>		/* get chip and board defs */
-#include <asm/arch/omap3.h>
+#include <asm/arch/omap.h>
 
 /*
  * Display CPU and Board information
@@ -47,7 +40,6 @@
 #define V_OSCK			26000000	/* Clock output from T2 */
 #define V_SCLK			(V_OSCK >> 1)
 
-#undef CONFIG_USE_IRQ				/* no support for IRQs */
 #define CONFIG_MISC_INIT_R
 
 #define CONFIG_CMDLINE_TAG			/* enable passing of ATAGs */
@@ -74,7 +66,6 @@
 /*
  * NS16550 Configuration
  */
-#define CONFIG_SYS_NS16550
 #define CONFIG_SYS_NS16550_SERIAL
 #define CONFIG_SYS_NS16550_REG_SIZE	(-4)
 #define CONFIG_SYS_NS16550_CLK		48000000	/* 48MHz (APLL96/2) */
@@ -106,36 +97,27 @@
 #define CONFIG_SYS_USB_EHCI_MAX_ROOT_PORTS 3
 #define CONFIG_USB_STORAGE
 
-/* #define CONFIG_EHCI_DCACHE */
-
 /* commands to include */
-#include <config_cmd_default.h>
-
 #define CONFIG_CMD_CACHE
 #define CONFIG_CMD_DHCP
 #define CONFIG_CMD_EXT2		/* EXT2 Support			*/
 #define CONFIG_CMD_FAT		/* FAT support			*/
-#define CONFIG_CMD_GPIO
 #define CONFIG_CMD_I2C		/* I2C serial bus support	*/
 #define CONFIG_CMD_MII
 #define CONFIG_CMD_MMC		/* MMC support			*/
-#define CONFIG_CMD_NET
-#define CONFIG_CMD_NFS
 #define CONFIG_CMD_NAND		/* NAND support			*/
 #define CONFIG_CMD_PING
 #define CONFIG_CMD_USB
-
-#undef CONFIG_CMD_FLASH		/* only NAND on the SOM */
-#undef CONFIG_CMD_IMLS
+#define CONFIG_CMD_EEPROM
 
 #define CONFIG_SYS_NO_FLASH
-#define CONFIG_HARD_I2C
-#define CONFIG_SYS_I2C_SPEED		400000
-#define CONFIG_SYS_I2C_SLAVE		1
-#define CONFIG_SYS_I2C_BUS		0
-#define CONFIG_SYS_I2C_BUS_SELECT	1
-#define CONFIG_DRIVER_OMAP34XX_I2C
-
+#define CONFIG_SYS_I2C
+#define CONFIG_SYS_OMAP24_I2C_SPEED	400000
+#define CONFIG_SYS_OMAP24_I2C_SLAVE	1
+#define CONFIG_SYS_I2C_OMAP34XX
+#define CONFIG_SYS_I2C_EEPROM_ADDR	0x50		/* base address */
+#define CONFIG_SYS_I2C_EEPROM_ADDR_LEN	1		/* bytes of address */
+#define CONFIG_SYS_I2C_EEPROM_ADDR_OVERFLOW	0x07
 
 /*
  * Board NAND Info.
@@ -180,20 +162,12 @@
  */
 #define CONFIG_SYS_TIMERBASE		OMAP34XX_GPT2
 #define CONFIG_SYS_PTV			2	/* Divisor: 2^(PTV+1) => 8 */
-#define CONFIG_SYS_HZ			1000
-
-/*
- * Stack sizes
- * The stack sizes are set up in start.S using the settings below
- */
-#define CONFIG_STACKSIZE	(128 << 10)	/* regular stack 128 KiB */
 
 /*
  * Physical Memory Map
  */
 #define CONFIG_NR_DRAM_BANKS	2	/* CS1 may or may not be populated */
 #define PHYS_SDRAM_1		OMAP34XX_SDRC_CS0
-#define PHYS_SDRAM_1_SIZE	(32 << 20)	/* at least 32 MiB */
 #define PHYS_SDRAM_2		OMAP34XX_SDRC_CS1
 
 /*
@@ -201,12 +175,8 @@
  */
 
 /* **** PISMO SUPPORT *** */
-
-/* Configure the PISMO */
-#define PISMO1_NAND_SIZE		GPMC_SIZE_128M
-
+#define CONFIG_NAND
 #define CONFIG_NAND_OMAP_GPMC
-#define GPMC_NAND_ECC_LP_x16_LAYOUT
 #define CONFIG_ENV_IS_IN_NAND
 #define SMNAND_ENV_OFFSET		0x180000 /* environment starts here */
 
@@ -233,14 +203,14 @@
 #define CONFIG_DRIVER_TI_EMAC_USE_RMII
 #define CONFIG_MII
 #define CONFIG_EMAC_MDIO_PHY_NUM	0
-#define CONFIG_BOOTP_DEFAULT
 #define CONFIG_BOOTP_DNS
 #define CONFIG_BOOTP_DNS2
 #define CONFIG_BOOTP_SEND_HOSTNAME
 #define CONFIG_NET_RETRY_COUNT 10
 
 /* Defines for SPL */
-#define CONFIG_SPL
+#define CONFIG_SPL_FRAMEWORK
+#define CONFIG_SPL_BOARD_INIT
 #define CONFIG_SPL_CONSOLE
 #define CONFIG_SPL_NAND_SIMPLE
 #define CONFIG_SPL_NAND_SOFTECC
@@ -251,13 +221,16 @@
 #define CONFIG_SPL_I2C_SUPPORT
 #define CONFIG_SPL_LIBGENERIC_SUPPORT
 #define CONFIG_SPL_SERIAL_SUPPORT
+#define CONFIG_SPL_GPIO_SUPPORT
 #define CONFIG_SPL_POWER_SUPPORT
 #define CONFIG_SPL_NAND_SUPPORT
+#define CONFIG_SPL_NAND_BASE
+#define CONFIG_SPL_NAND_DRIVERS
+#define CONFIG_SPL_NAND_ECC
 #define CONFIG_SPL_LDSCRIPT		"$(CPUDIR)/omap-common/u-boot-spl.lds"
 
 #define CONFIG_SPL_TEXT_BASE		0x40200000 /*CONFIG_SYS_SRAM_START*/
 #define CONFIG_SPL_MAX_SIZE		(54 * 1024)	/* 8 KB for stack */
-#define CONFIG_SPL_STACK		LOW_LEVEL_SRAM_STACK
 
 #define CONFIG_SYS_SPL_MALLOC_START	0x8f000000
 #define CONFIG_SYS_SPL_MALLOC_SIZE	0x80000
@@ -265,6 +238,7 @@
 #define CONFIG_SPL_BSS_MAX_SIZE		0x80000
 
 /* NAND boot config */
+#define CONFIG_SYS_NAND_BUSWIDTH_16BIT
 #define CONFIG_SYS_NAND_PAGE_COUNT	64
 #define CONFIG_SYS_NAND_PAGE_SIZE	2048
 #define CONFIG_SYS_NAND_OOBSIZE		64
@@ -276,6 +250,8 @@
 					 56, 57, 58, 59, 60, 61, 62, 63}
 #define CONFIG_SYS_NAND_ECCSIZE		256
 #define CONFIG_SYS_NAND_ECCBYTES	3
+#define CONFIG_NAND_OMAP_ECCSCHEME	OMAP_ECC_HAM1_CODE_SW
+#define CONFIG_NAND_OMAP_GPMC_PREFETCH
 
 #define CONFIG_SYS_NAND_U_BOOT_START	CONFIG_SYS_TEXT_BASE
 
@@ -298,9 +274,6 @@
 				"1m(u-boot),256k(env1)," \
 				"256k(env2),6m(kernel),-(rootfs)"
 
-#define xstr(s)	str(s)
-#define str(s)	#s
-
 #define	CONFIG_TAM3517_SETTINGS						\
 	"netdev=eth0\0"							\
 	"nandargs=setenv bootargs root=${nandroot} "			\
@@ -320,8 +293,8 @@
 	"addmisc=setenv bootargs ${bootargs} ${misc}\0"			\
 	"loadaddr=82000000\0"						\
 	"kernel_addr_r=82000000\0"					\
-	"hostname=" xstr(CONFIG_HOSTNAME) "\0"				\
-	"bootfile=" xstr(CONFIG_HOSTNAME) "/uImage\0"			\
+	"hostname=" __stringify(CONFIG_HOSTNAME) "\0"			\
+	"bootfile=" __stringify(CONFIG_HOSTNAME) "/uImage\0"		\
 	"flash_self=run ramargs addip addtty addmtd addmisc;"		\
 		"bootm ${kernel_addr} ${ramdisk_addr}\0"		\
 	"flash_nfs=run nfsargs addip addtty addmtd addmisc;"		\
@@ -336,10 +309,10 @@
 		"run ramargs addip addtty addmtd addmisc;"		\
 		"bootm ${kernel_addr_r} ${ramdisk_addr_r};"		\
 		"else echo Images not loades;fi\0"			\
-	"u-boot=" xstr(CONFIG_HOSTNAME) "/u-boot.img\0"			\
+	"u-boot=" __stringify(CONFIG_HOSTNAME) "/u-boot.img\0"		\
 	"load=tftp ${loadaddr} ${u-boot}\0"				\
 	"loadmlo=tftp ${loadaddr} ${mlo}\0"				\
-	"mlo=" xstr(CONFIG_HOSTNAME) "/MLO\0"				\
+	"mlo=" __stringify(CONFIG_HOSTNAME) "/MLO\0"			\
 	"uboot_addr=0x80000\0"						\
 	"update=nandecc sw;nand erase ${uboot_addr} 100000;"		\
 		"nand write ${loadaddr} ${uboot_addr} 80000\0"		\
@@ -351,5 +324,95 @@
 			"echo Board without bootloader !!;"		\
 		"fi;"							\
 		"else echo U-Boot not downloaded..exiting;fi\0"		\
+
+
+/*
+ * this is common code for all TAM3517 boards.
+ * MAC address is stored from manufacturer in
+ * I2C EEPROM
+ */
+#if !(defined(__KERNEL_STRICT_NAMES) || defined(__ASSEMBLY__))
+/*
+ * The I2C EEPROM on the TAM3517 contains
+ * mac address and production data
+ */
+struct tam3517_module_info {
+	char customer[48];
+	char product[48];
+
+	/*
+	 * bit 0~47  : sequence number
+	 * bit 48~55 : week of year, from 0.
+	 * bit 56~63 : year
+	 */
+	unsigned long long sequence_number;
+
+	/*
+	 * bit 0~7   : revision fixed
+	 * bit 8~15  : revision major
+	 * bit 16~31 : TNxxx
+	 */
+	unsigned int revision;
+	unsigned char eth_addr[4][8];
+	unsigned char _rev[100];
+};
+
+#define TAM3517_READ_EEPROM(info, ret) \
+do {								\
+	i2c_init(CONFIG_SYS_OMAP24_I2C_SPEED, CONFIG_SYS_OMAP24_I2C_SLAVE); \
+	if (eeprom_read(CONFIG_SYS_I2C_EEPROM_ADDR, 0,		\
+		(void *)info, sizeof(*info)))			\
+		ret = 1;					\
+	else							\
+		ret = 0;					\
+} while (0)
+
+#define TAM3517_READ_MAC_FROM_EEPROM(info)			\
+do {								\
+	char buf[80], ethname[20];				\
+	int i;							\
+	memset(buf, 0, sizeof(buf));				\
+	for (i = 0 ; i < ARRAY_SIZE((info)->eth_addr); i++) {	\
+		sprintf(buf, "%02X:%02X:%02X:%02X:%02X:%02X",	\
+			(info)->eth_addr[i][5],			\
+			(info)->eth_addr[i][4],			\
+			(info)->eth_addr[i][3],			\
+			(info)->eth_addr[i][2],			\
+			(info)->eth_addr[i][1],			\
+			(info)->eth_addr[i][0]);			\
+								\
+		if (i)						\
+			sprintf(ethname, "eth%daddr", i);	\
+		else						\
+			strcpy(ethname, "ethaddr");		\
+		printf("Setting %s from EEPROM with %s\n", ethname, buf);\
+		setenv(ethname, buf);				\
+	}							\
+} while (0)
+
+/* The following macros are taken from Technexion's documentation */
+#define TAM3517_sequence_number(info) \
+	((info)->sequence_number % 0x1000000000000LL)
+#define TAM3517_week_of_year(info) (((info)->sequence_number >> 48) % 0x100)
+#define TAM3517_year(info) ((info)->sequence_number >> 56)
+#define TAM3517_revision_fixed(info) ((info)->revision % 0x100)
+#define TAM3517_revision_major(info) (((info)->revision >> 8) % 0x100)
+#define TAM3517_revision_tn(info) ((info)->revision >> 16)
+
+#define TAM3517_PRINT_SOM_INFO(info)				\
+do {								\
+	printf("Vendor:%s\n", (info)->customer);		\
+	printf("SOM:   %s\n", (info)->product);			\
+	printf("SeqNr: %02llu%02llu%012llu\n",			\
+		TAM3517_year(info),				\
+		TAM3517_week_of_year(info),			\
+		TAM3517_sequence_number(info));			\
+	printf("Rev:   TN%u %u.%u\n",				\
+		TAM3517_revision_tn(info),			\
+		TAM3517_revision_major(info),			\
+		TAM3517_revision_fixed(info));			\
+} while (0)
+
+#endif
 
 #endif /* __TAM3517_H */

@@ -1,24 +1,10 @@
 /*
  * Broadcom PHY drivers
  *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License as
- * published by the Free Software Foundation; either version 2 of
- * the License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston,
- * MA 02111-1307 USA
+ * SPDX-License-Identifier:	GPL-2.0+
  *
  * Copyright 2010-2011 Freescale Semiconductor, Inc.
  * author Andy Fleming
- *
  */
 #include <config.h>
 #include <common.h>
@@ -151,6 +137,24 @@ static int bcm5482_config(struct phy_device *phydev)
 	return 0;
 }
 
+static int bcm_cygnus_startup(struct phy_device *phydev)
+{
+	/* Read the Status (2x to make sure link is right) */
+	genphy_update_link(phydev);
+	genphy_parse_link(phydev);
+
+	return 0;
+}
+
+static int bcm_cygnus_config(struct phy_device *phydev)
+{
+	genphy_config_aneg(phydev);
+
+	phy_reset(phydev);
+
+	return 0;
+}
+
 /*
  * Find out if PHY is in copper or serdes mode by looking at Expansion Reg
  * 0x42 - "Operating Mode Status Register"
@@ -278,11 +282,22 @@ static struct phy_driver BCM5482S_driver = {
 	.shutdown = &genphy_shutdown,
 };
 
+static struct phy_driver BCM_CYGNUS_driver = {
+	.name = "Broadcom CYGNUS GPHY",
+	.uid = 0xae025200,
+	.mask = 0xfffff0,
+	.features = PHY_GBIT_FEATURES,
+	.config = &bcm_cygnus_config,
+	.startup = &bcm_cygnus_startup,
+	.shutdown = &genphy_shutdown,
+};
+
 int phy_broadcom_init(void)
 {
 	phy_register(&BCM5482S_driver);
 	phy_register(&BCM5464S_driver);
 	phy_register(&BCM5461S_driver);
+	phy_register(&BCM_CYGNUS_driver);
 
 	return 0;
 }

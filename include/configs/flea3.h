@@ -7,20 +7,7 @@
  *
  * Configuration for the flea3 board.
  *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License as
- * published by the Free Software Foundation; either version 2 of
- * the License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.	 See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston,
- * MA 02111-1307 USA
+ * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef __CONFIG_H
@@ -29,9 +16,7 @@
 #include <asm/arch/imx-regs.h>
 
  /* High Level Configuration Options */
-#define CONFIG_ARM1136	/* This is an arm1136 CPU core */
 #define CONFIG_MX35
-#define CONFIG_MX35_HCLK_FREQ	24000000
 
 #define CONFIG_SYS_DCACHE_OFF
 #define CONFIG_SYS_CACHELINE_SIZE	32
@@ -64,11 +49,13 @@
 /*
  * Hardware drivers
  */
-#define CONFIG_HARD_I2C
-#define CONFIG_I2C_MXC
-#define CONFIG_SYS_I2C_MX35_PORT3
-#define CONFIG_SYS_I2C_SPEED		100000
-#define CONFIG_SYS_I2C_SLAVE		0xfe
+#define CONFIG_SYS_I2C
+#define CONFIG_SYS_I2C_MXC
+#define CONFIG_SYS_I2C_MXC_I2C1		/* enable I2C bus 1 */
+#define CONFIG_SYS_I2C_MXC_I2C2		/* enable I2C bus 2 */
+#define CONFIG_SYS_I2C_MXC_I2C3		/* enable I2C bus 3 */
+#define CONFIG_SYS_SPD_BUS_NUM		2 /* I2C3 */
+#define CONFIG_SYS_MXC_I2C3_SLAVE	0xfe
 #define CONFIG_MXC_SPI
 #define CONFIG_MXC_GPIO
 
@@ -86,9 +73,6 @@
 /*
  * Command definition
  */
-
-#include <config_cmd_default.h>
-
 #define CONFIG_CMD_PING
 #define CONFIG_CMD_DHCP
 #define CONFIG_BOOTP_SUBNETMASK
@@ -101,7 +85,6 @@
 #define CONFIG_CMD_I2C
 #define CONFIG_CMD_SPI
 #define CONFIG_CMD_MII
-#define CONFIG_CMD_NET
 #define CONFIG_NET_RETRY_COUNT	100
 
 #define CONFIG_BOOTDELAY	3
@@ -119,7 +102,6 @@
 #define CONFIG_FEC_MXC_PHYADDR	0x1
 
 #define CONFIG_MII
-#define CONFIG_DISCOVER_PHY
 
 #define CONFIG_ARP_TIMEOUT	200UL
 
@@ -127,7 +109,6 @@
  * Miscellaneous configurable options
  */
 #define CONFIG_SYS_LONGHELP	/* undef to save memory */
-#define CONFIG_SYS_PROMPT	"flea3 U-Boot > "
 #define CONFIG_CMDLINE_EDITING
 #define CONFIG_SYS_HUSH_PARSER	/* Use the HUSH parser */
 
@@ -141,19 +122,7 @@
 #define CONFIG_SYS_MEMTEST_START	0	/* memtest works on */
 #define CONFIG_SYS_MEMTEST_END		0x10000
 
-#undef	CONFIG_SYS_CLKS_IN_HZ	/* everything, incl board info, in Hz */
-
 #define CONFIG_SYS_LOAD_ADDR		CONFIG_LOADADDR
-
-#define CONFIG_SYS_HZ				1000
-
-
-/*
- * Stack sizes
- *
- * The stack sizes are set up in start.S using the settings below
- */
-#define CONFIG_STACKSIZE	(128 * 1024)	/* regular stack */
 
 /*
  * Physical Memory Map
@@ -222,7 +191,6 @@
  * NAND FLASH driver setup
  */
 #define CONFIG_NAND_MXC
-#define CONFIG_NAND_MXC_V1_1
 #define CONFIG_MXC_NAND_REGS_BASE	(NFC_BASE_ADDR)
 #define CONFIG_SYS_MAX_NAND_DEVICE	1
 #define CONFIG_SYS_NAND_BASE		(NFC_BASE_ADDR)
@@ -233,8 +201,6 @@
  * Default environment and default scripts
  * to update uboot and load kernel
  */
-#define xstr(s)	str(s)
-#define str(s)	#s
 
 #define CONFIG_HOSTNAME flea3
 #define	CONFIG_EXTRA_ENV_SETTINGS					\
@@ -247,16 +213,16 @@
 		":${hostname}:${netdev}:off panic=1\0"			\
 	"addip_dyn=setenv bootargs ${bootargs} ip=dhcp\0"		\
 	"addip=if test -n ${ipdyn};then run addip_dyn;"			\
-		"else run addip_sta;fi\0"	\
+		"else run addip_sta;fi\0"				\
 	"addmtd=setenv bootargs ${bootargs} ${mtdparts}\0"		\
 	"addtty=setenv bootargs ${bootargs}"				\
 		" console=ttymxc2,${baudrate}\0"			\
 	"addmisc=setenv bootargs ${bootargs} ${misc}\0"			\
 	"loadaddr=80800000\0"						\
 	"kernel_addr_r=80800000\0"					\
-	"hostname=" xstr(CONFIG_HOSTNAME) "\0"				\
-	"bootfile=" xstr(CONFIG_HOSTNAME) "/uImage\0"			\
-	"ramdisk_file=" xstr(CONFIG_HOSTNAME) "/uRamdisk\0"		\
+	"hostname=" __stringify(CONFIG_HOSTNAME) "\0"			\
+	"bootfile=" __stringify(CONFIG_HOSTNAME) "/uImage\0"		\
+	"ramdisk_file=" __stringify(CONFIG_HOSTNAME) "/uRamdisk\0"	\
 	"flash_self=run ramargs addip addtty addmtd addmisc;"		\
 		"bootm ${kernel_addr} ${ramdisk_addr}\0"		\
 	"flash_nfs=run nfsargs addip addtty addmtd addmisc;"		\
@@ -270,9 +236,9 @@
 		"run ramargs addip addtty addmtd addmisc;"		\
 		"bootm ${kernel_addr_r} ${ramdisk_addr_r};"		\
 		"else echo Images not loades;fi\0"			\
-	"u-boot=" xstr(CONFIG_HOSTNAME) "/u-boot.bin\0"			\
+	"u-boot=" __stringify(CONFIG_HOSTNAME) "/u-boot.bin\0"		\
 	"load=tftp ${loadaddr} ${u-boot}\0"				\
-	"uboot_addr=" xstr(CONFIG_SYS_MONITOR_BASE) "\0"		\
+	"uboot_addr=" __stringify(CONFIG_SYS_MONITOR_BASE) "\0"		\
 	"update=protect off ${uboot_addr} +40000;"			\
 		"erase ${uboot_addr} +40000;"				\
 		"cp.b ${loadaddr} ${uboot_addr} ${filesize}\0"		\
@@ -283,5 +249,9 @@
 		"fi;"							\
 		"else echo U-Boot not downloaded..exiting;fi\0"		\
 	"bootcmd=run net_nfs\0"
+
+/* Enable FIT images support */
+#define CONFIG_CMD_FDT
+#define CONFIG_FIT
 
 #endif				/* __CONFIG_H */

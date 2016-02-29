@@ -3,34 +3,14 @@
  * Hans-Joerg Frieden, Hyperion Entertainment
  * Hans-JoergF@hyperion-entertainment.com
  *
- * See file CREDITS for list of people who contributed to this
- * project.
- *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License as
- * published by the Free Software Foundation; either version 2 of
- * the License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston,
- * MA 02111-1307 USA
+ * SPDX-License-Identifier:	GPL-2.0+
  */
 #include <common.h>
 #include <command.h>
 #include <ide.h>
 #include "part_amiga.h"
 
-#if defined(CONFIG_CMD_IDE) || \
-    defined(CONFIG_CMD_SCSI) || \
-    defined(CONFIG_CMD_USB) || \
-    defined(CONFIG_MMC) || \
-    defined(CONFIG_SYSTEMACE)
+#ifdef HAVE_BLOCK_DEVICE
 
 #undef AMIGA_DEBUG
 
@@ -160,8 +140,7 @@ struct rigid_disk_block *get_rdisk(block_dev_desc_t *dev_desc)
 
     for (i=0; i<limit; i++)
     {
-	ulong res = dev_desc->block_read(dev_desc->dev, i, 1,
-					 (ulong *)block_buffer);
+	ulong res = dev_desc->block_read(dev_desc, i, 1, (ulong *)block_buffer);
 	if (res == 1)
 	{
 	    struct rigid_disk_block *trdb = (struct rigid_disk_block *)block_buffer;
@@ -203,7 +182,7 @@ struct bootcode_block *get_bootcode(block_dev_desc_t *dev_desc)
 
     for (i = 0; i < limit; i++)
     {
-	ulong res = dev_desc->block_read(dev_desc->dev, i, 1, (ulong *)block_buffer);
+	ulong res = dev_desc->block_read(dev_desc, i, 1, (ulong *)block_buffer);
 	if (res == 1)
 	{
 	    struct bootcode_block *boot = (struct bootcode_block *)block_buffer;
@@ -278,7 +257,7 @@ static struct partition_block *find_partition(block_dev_desc_t *dev_desc, int pa
 
     while (block != 0xFFFFFFFF)
     {
-	ulong res = dev_desc->block_read(dev_desc->dev, block, 1,
+	ulong res = dev_desc->block_read(dev_desc, block, 1,
 					 (ulong *)block_buffer);
 	if (res == 1)
 	{
@@ -374,8 +353,7 @@ void print_part_amiga (block_dev_desc_t *dev_desc)
 
 	PRINTF("Trying to load block #0x%X\n", block);
 
-	res = dev_desc->block_read(dev_desc->dev, block, 1,
-				   (ulong *)block_buffer);
+	res = dev_desc->block_read(dev_desc, block, 1, (ulong *)block_buffer);
 	if (res == 1)
 	{
 	    p = (struct partition_block *)block_buffer;

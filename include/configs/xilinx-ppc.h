@@ -1,26 +1,18 @@
 /*
  * (C) Copyright 2008
- *  Ricado Ribalda-Universidad Autonoma de Madrid-ricardo.ribalda@uam.es
+ *  Ricado Ribalda-Universidad Autonoma de Madrid-ricardo.ribalda@gmail.com
  *  This work has been supported by: QTechnology  http://qtec.com/
  *
  *  (C) Copyright 2008
  *  Georg Schardt <schardt@team-ctech.de>
  *
- *  This program is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 2 of the License, or
- *  (at your option) any later version.
- *
- *  This program is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *  You should have received a copy of the GNU General Public License
- *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * SPDX-License-Identifier:	GPL-2.0+
 */
 
 #ifndef __CONFIG_XLX_H
 #define __CONFIG_XLX_H
+
+
 /*
 #define DEBUG
 #define ET_DEBUG
@@ -33,11 +25,9 @@
 #define CONFIG_SYS_MALLOC_LEN		(CONFIG_ENV_SIZE + 128 * 1024)
 
 /*Cmd*/
-#include <config_cmd_default.h>
 #define CONFIG_CMD_ASKENV
 #define CONFIG_CMD_CACHE
 #define CONFIG_CMD_DIAG
-#define CONFIG_CMD_ELF
 #define CONFIG_CMD_IRQ
 #define CONFIG_CMD_REGINFO
 #undef CONFIG_CMD_JFFS2
@@ -45,12 +35,9 @@
 #undef CONFIG_CMD_SPI
 #undef CONFIG_CMD_I2C
 #undef CONFIG_CMD_DTT
-#undef CONFIG_CMD_NET
 #undef CONFIG_CMD_PING
 #undef CONFIG_CMD_DHCP
 #undef CONFIG_CMD_EEPROM
-#undef CONFIG_CMD_IMLS
-#undef CONFIG_CMD_NFS
 
 /*Misc*/
 #define CONFIG_BOOTDELAY		5/* autoboot after 5 seconds     */
@@ -74,7 +61,6 @@
 					/* default load address       */
 #define CONFIG_SYS_EXTBDINFO		1
 					/* Extended board_into (bd_t) */
-#define CONFIG_SYS_HZ			1000
 					/* decrementer freq: 1 ms ticks */
 #define CONFIG_CMDLINE_EDITING		/* add command line history     */
 #define CONFIG_AUTO_COMPLETE		/* add autocompletion support   */
@@ -115,23 +101,10 @@
 #define CONFIG_SYS_NO_FLASH
 #endif
 
-/* serial communication */
-#ifdef XPAR_UARTLITE_0_BASEADDR
-#define CONFIG_XILINX_UARTLITE
-#define CONFIG_SERIAL_BASE		XPAR_UARTLITE_0_BASEADDR
-#define CONFIG_BAUDRATE			XPAR_UARTLITE_0_BAUDRATE
-#define CONFIG_SYS_BAUDRATE_TABLE	{ CONFIG_BAUDRATE }
-#else
-#ifdef XPAR_UARTNS550_0_BASEADDR
-#define CONFIG_SYS_NS16550
-#define CONFIG_SYS_NS16550_SERIAL
-#define CONFIG_SYS_NS16550_REG_SIZE	4
-#define CONFIG_CONS_INDEX		1
-#define CONFIG_SYS_NS16550_COM1		XPAR_UARTNS550_0_BASEADDR
-#define CONFIG_SYS_NS16550_CLK		XPAR_UARTNS550_0_CLOCK_FREQ_HZ
+#define CONFIG_OF_LIBFDT       1
 #define CONFIG_BAUDRATE			115200
-#define CONFIG_SYS_BAUDRATE_TABLE	{ 9600, 115200 }
-#endif
-#endif
+/* The following table includes the supported baudrates */
+# define CONFIG_SYS_BAUDRATE_TABLE \
+	{300, 600, 1200, 2400, 4800, 9600, 19200, 38400, 57600, 115200, 230400}
 
 #endif						/* __CONFIG_H */

@@ -2,23 +2,7 @@
  * (C) Copyright 2002 ELTEC Elektronik AG
  * Frank Gottschling <fgottschling@eltec.de>
  *
- * See file CREDITS for list of people who contributed to this
- * project.
- *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License as
- * published by the Free Software Foundation; either version 2 of
- * the License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.	 See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston,
- * MA 02111-1307 USA
+ * SPDX-License-Identifier:	GPL-2.0+
  */
 
 /*
@@ -31,8 +15,10 @@
  * logo can be placed in the upper left corner and additional board
  * information strings (that normally goes to serial port) can be drawn.
  *
- * The console driver can use the standard PC keyboard interface (i8042)
- * for character input. Character output goes to a memory mapped video
+ * The console driver can use a keyboard interface for character input
+ * but this is deprecated. Only rk51 uses it.
+ *
+ * Character output goes to a memory-mapped video
  * framebuffer with little or big-endian organisation.
  * With environment setting 'console=serial' the console i/o can be
  * forced to serial port.
@@ -54,19 +40,15 @@
  * VIDEO_DATA_FORMAT	      - graphical data format GDF
  * VIDEO_FB_ADRS	      - start of video memory
  *
- * CONFIG_I8042_KBD	      - AT Keyboard driver for i8042
  * VIDEO_KBD_INIT_FCT	      - init function for keyboard
  * VIDEO_TSTC_FCT	      - keyboard_tstc function
  * VIDEO_GETC_FCT	      - keyboard_getc function
  *
- * CONFIG_CONSOLE_CURSOR      - on/off drawing cursor is done with
- *				delay loop in VIDEO_TSTC_FCT (i8042)
- *
- * CONFIG_SYS_CONSOLE_BLINK_COUNT - value for delay loop - blink rate
- * CONFIG_CONSOLE_TIME	      - display time/date in upper right
- *				corner, needs CONFIG_CMD_DATE and
- *				CONFIG_CONSOLE_CURSOR
- * CONFIG_VIDEO_LOGO	      - display Linux Logo in upper left corner
+ * CONFIG_VIDEO_LOGO	      - display Linux Logo in upper left corner.
+ *				Use CONFIG_SPLASH_SCREEN_ALIGN with
+ *				environment variable "splashpos" to place
+ *				the logo on other position. In this case
+ *				no CONSOLE_EXTRA_INFO is possible.
  * CONFIG_VIDEO_BMP_LOGO      - use bmp_logo instead of linux_logo
  * CONFIG_CONSOLE_EXTRA_INFO  - display additional board information
  *				strings that normaly goes to serial
@@ -99,6 +81,7 @@
  */
 
 #include <common.h>
+#include <fdtdec.h>
 #include <version.h>
 #include <malloc.h>
 #include <linux/compiler.h>
@@ -129,22 +112,13 @@
  * Defines for the SED13806 driver
  */
 #ifdef CONFIG_VIDEO_SED13806
-
-#ifndef CONFIG_TOTAL5200
 #define VIDEO_FB_LITTLE_ENDIAN
-#endif
 #define VIDEO_HW_RECTFILL
 #define VIDEO_HW_BITBLT
 #endif
 
-/*
- * Defines for the SED13806 driver
- */
-#ifdef CONFIG_VIDEO_SM501
-
-#ifdef CONFIG_HH405
-#define VIDEO_FB_LITTLE_ENDIAN
-#endif
+#if defined(CONFIG_VIDEO_MXS) || defined(CONFIG_VIDEO_S3C)
+#define VIDEO_FB_16BPP_WORD_SWAP
 #endif
 
 /*
@@ -164,7 +138,7 @@
 /*
  * Defines for the i.MX31 driver (mx3fb.c)
  */
-#if defined(CONFIG_VIDEO_MX3) || defined(CONFIG_VIDEO_MX5)
+#if defined(CONFIG_VIDEO_MX3) || defined(CONFIG_VIDEO_IPUV3)
 #define VIDEO_FB_16BPP_WORD_SWAP
 #endif
 
@@ -172,6 +146,8 @@
  * Include video_fb.h after definitions of VIDEO_HW_RECTFILL etc.
  */
 #include <video_fb.h>
+
+#include <splash.h>
 
 /*
  * some Macros
@@ -183,19 +159,6 @@
 #define VIDEO_FB_ADRS		(pGD->frameAdrs)
 
 /*
- * Console device defines with i8042 keyboard controller
- * Any other keyboard controller must change this section
- */
-
-#ifdef	CONFIG_I8042_KBD
-#include <i8042.h>
-
-#define VIDEO_KBD_INIT_FCT	i8042_kbd_init()
-#define VIDEO_TSTC_FCT		i8042_tstc
-#define VIDEO_GETC_FCT		i8042_getc
-#endif
-
-/*
  * Console device
  */
 
@@ -203,7 +166,6 @@
 #include <linux/types.h>
 #include <stdio_dev.h>
 #include <video_font.h>
-#include <video_font_data.h>
 
 #if defined(CONFIG_CMD_DATE)
 #include <rtc.h>
@@ -212,18 +174,11 @@
 #if defined(CONFIG_CMD_BMP) || defined(CONFIG_SPLASH_SCREEN)
 #include <watchdog.h>
 #include <bmp_layout.h>
-
-#ifdef CONFIG_SPLASH_SCREEN_ALIGN
-#define BMP_ALIGN_CENTER	0x7FFF
-#endif
-
+#include <splash.h>
 #endif
 
 /*
  * Cursor definition:
- * CONFIG_CONSOLE_CURSOR:  Uses a timer function (see drivers/input/i8042.c)
- *			   to let the cursor blink. Uses the macros
- *			   CURSOR_OFF and CURSOR_ON.
  * CONFIG_VIDEO_SW_CURSOR: Draws a cursor after the last character. No
  *			   blinking is provided. Uses the macros CURSOR_SET
  *			   and CURSOR_OFF.
@@ -233,42 +188,29 @@
  *			   must disable the hardware register of the graphic
  *			   chip. Otherwise a blinking field is displayed
  */
-#if !defined(CONFIG_CONSOLE_CURSOR) && \
-    !defined(CONFIG_VIDEO_SW_CURSOR) && \
-    !defined(CONFIG_VIDEO_HW_CURSOR)
+#if !defined(CONFIG_VIDEO_SW_CURSOR) && !defined(CONFIG_VIDEO_HW_CURSOR)
 /* no Cursor defined */
 #define CURSOR_ON
 #define CURSOR_OFF
 #define CURSOR_SET
 #endif
 
-#if defined(CONFIG_CONSOLE_CURSOR) || defined(CONFIG_VIDEO_SW_CURSOR)
-#if defined(CURSOR_ON) || \
-	(defined(CONFIG_CONSOLE_CURSOR) && defined(CONFIG_VIDEO_SW_CURSOR))
-#error	only one of CONFIG_CONSOLE_CURSOR, CONFIG_VIDEO_SW_CURSOR, \
-	or CONFIG_VIDEO_HW_CURSOR can be defined
+#if defined(CONFIG_VIDEO_SW_CURSOR)
+#if defined(CONFIG_VIDEO_HW_CURSOR)
+#error	only one of CONFIG_VIDEO_SW_CURSOR or CONFIG_VIDEO_HW_CURSOR can be \
+	defined
 #endif
 void console_cursor(int state);
 
 #define CURSOR_ON  console_cursor(1)
 #define CURSOR_OFF console_cursor(0)
 #define CURSOR_SET video_set_cursor()
-#endif /* CONFIG_CONSOLE_CURSOR || CONFIG_VIDEO_SW_CURSOR */
-
-#ifdef	CONFIG_CONSOLE_CURSOR
-#ifndef	CONFIG_CONSOLE_TIME
-#error	CONFIG_CONSOLE_CURSOR must be defined for CONFIG_CONSOLE_TIME
-#endif
-#ifndef CONFIG_I8042_KBD
-#warning Cursor drawing on/off needs timer function s.a. drivers/input/i8042.c
-#endif
-#endif /* CONFIG_CONSOLE_CURSOR */
-
+#endif /* CONFIG_VIDEO_SW_CURSOR */
 
 #ifdef CONFIG_VIDEO_HW_CURSOR
 #ifdef	CURSOR_ON
-#error	only one of CONFIG_CONSOLE_CURSOR, CONFIG_VIDEO_SW_CURSOR, \
-	or CONFIG_VIDEO_HW_CURSOR can be defined
+#error	only one of CONFIG_VIDEO_SW_CURSOR or CONFIG_VIDEO_HW_CURSOR can be \
+	defined
 #endif
 #define CURSOR_ON
 #define CURSOR_OFF
@@ -306,9 +248,10 @@ void console_cursor(int state);
 
 #define VIDEO_COLS		VIDEO_VISIBLE_COLS
 #define VIDEO_ROWS		VIDEO_VISIBLE_ROWS
-#define VIDEO_SIZE		(VIDEO_ROWS*VIDEO_COLS*VIDEO_PIXEL_SIZE)
-#define VIDEO_PIX_BLOCKS	(VIDEO_SIZE >> 2)
-#define VIDEO_LINE_LEN		(VIDEO_COLS*VIDEO_PIXEL_SIZE)
+#ifndef VIDEO_LINE_LEN
+#define VIDEO_LINE_LEN		(VIDEO_COLS * VIDEO_PIXEL_SIZE)
+#endif
+#define VIDEO_SIZE		(VIDEO_ROWS * VIDEO_LINE_LEN)
 #define VIDEO_BURST_LEN		(VIDEO_COLS/8)
 
 #ifdef	CONFIG_VIDEO_LOGO
@@ -323,7 +266,11 @@ void console_cursor(int state);
 #define CONSOLE_ROW_SECOND	(video_console_address + CONSOLE_ROW_SIZE)
 #define CONSOLE_ROW_LAST	(video_console_address + CONSOLE_SIZE - CONSOLE_ROW_SIZE)
 #define CONSOLE_SIZE		(CONSOLE_ROW_SIZE * CONSOLE_ROWS)
-#define CONSOLE_SCROLL_SIZE	(CONSOLE_SIZE - CONSOLE_ROW_SIZE)
+
+/* By default we scroll by a single line */
+#ifndef CONFIG_CONSOLE_SCROLL_LINES
+#define CONFIG_CONSOLE_SCROLL_LINES 1
+#endif
 
 /* Macros */
 #ifdef	VIDEO_FB_LITTLE_ENDIAN
@@ -381,6 +328,13 @@ static u32 eorx, fgx, bgx;	/* color pats */
 
 static int cfb_do_flush_cache;
 
+#ifdef CONFIG_CFB_CONSOLE_ANSI
+static char ansi_buf[10];
+static int ansi_buf_size;
+static int ansi_colors_need_revert;
+static int ansi_cursor_hidden;
+#endif
+
 static const int video_font_draw_table8[] = {
 	0x00000000, 0x000000ff, 0x0000ff00, 0x0000ffff,
 	0x00ff0000, 0x00ff00ff, 0x00ffff00, 0x00ffffff,
@@ -434,6 +388,16 @@ static const int video_font_draw_table32[16][4] = {
 	{0x00ffffff, 0x00ffffff, 0x00ffffff, 0x00ffffff}
 };
 
+/*
+ * Implement a weak default function for boards that optionally
+ * need to skip the cfb initialization.
+ */
+__weak int board_cfb_skip(void)
+{
+	/* As default, don't skip cfb init */
+	return 0;
+}
+
 static void video_drawchars(int xx, int yy, unsigned char *s, int count)
 {
 	u8 *cdat, *dest, *dest0;
@@ -455,6 +419,10 @@ static void video_drawchars(int xx, int yy, unsigned char *s, int count)
 				((u32 *) dest)[0] =
 					(video_font_draw_table8[bits >> 4] &
 					 eorx) ^ bgx;
+
+				if (VIDEO_FONT_WIDTH == 4)
+					continue;
+
 				((u32 *) dest)[1] =
 					(video_font_draw_table8[bits & 15] &
 					 eorx) ^ bgx;
@@ -480,6 +448,10 @@ static void video_drawchars(int xx, int yy, unsigned char *s, int count)
 					SHORTSWAP32((video_font_draw_table15
 						     [bits >> 4 & 3] & eorx) ^
 						    bgx);
+
+				if (VIDEO_FONT_WIDTH == 4)
+					continue;
+
 				((u32 *) dest)[2] =
 					SHORTSWAP32((video_font_draw_table15
 						     [bits >> 2 & 3] & eorx) ^
@@ -510,6 +482,10 @@ static void video_drawchars(int xx, int yy, unsigned char *s, int count)
 					SHORTSWAP32((video_font_draw_table16
 						     [bits >> 4 & 3] & eorx) ^
 						    bgx);
+
+				if (VIDEO_FONT_WIDTH == 4)
+					continue;
+
 				((u32 *) dest)[2] =
 					SHORTSWAP32((video_font_draw_table16
 						     [bits >> 2 & 3] & eorx) ^
@@ -544,6 +520,11 @@ static void video_drawchars(int xx, int yy, unsigned char *s, int count)
 				((u32 *) dest)[3] =
 					SWAP32((video_font_draw_table32
 						[bits >> 4][3] & eorx) ^ bgx);
+
+
+				if (VIDEO_FONT_WIDTH == 4)
+					continue;
+
 				((u32 *) dest)[4] =
 					SWAP32((video_font_draw_table32
 						[bits & 15][0] & eorx) ^ bgx);
@@ -557,8 +538,6 @@ static void video_drawchars(int xx, int yy, unsigned char *s, int count)
 					SWAP32((video_font_draw_table32
 						[bits & 15][3] & eorx) ^ bgx);
 			}
-			if (cfb_do_flush_cache)
-				flush_cache((ulong)dest0, 32);
 			dest0 += VIDEO_FONT_WIDTH * VIDEO_PIXEL_SIZE;
 			s++;
 		}
@@ -581,6 +560,10 @@ static void video_drawchars(int xx, int yy, unsigned char *s, int count)
 				((u32 *) dest)[2] =
 					(video_font_draw_table24[bits >> 4][2]
 					 & eorx) ^ bgx;
+
+				if (VIDEO_FONT_WIDTH == 4)
+					continue;
+
 				((u32 *) dest)[3] =
 					(video_font_draw_table24[bits & 15][0]
 					 & eorx) ^ bgx;
@@ -608,7 +591,7 @@ static void video_putchar(int xx, int yy, unsigned char c)
 	video_drawchars(xx, yy + video_logo_height, &c, 1);
 }
 
-#if defined(CONFIG_CONSOLE_CURSOR) || defined(CONFIG_VIDEO_SW_CURSOR)
+#if defined(CONFIG_VIDEO_SW_CURSOR)
 static void video_set_cursor(void)
 {
 	if (cursor_state)
@@ -627,35 +610,12 @@ static void video_invertchar(int xx, int yy)
 		for (x = firstx; x < lastx; x++) {
 			u8 *dest = (u8 *)(video_fb_address) + x + y;
 			*dest = ~*dest;
-			if (cfb_do_flush_cache)
-				flush_cache((ulong)dest, 4);
 		}
 	}
 }
 
 void console_cursor(int state)
 {
-#ifdef CONFIG_CONSOLE_TIME
-	struct rtc_time tm;
-	char info[16];
-
-	/* time update only if cursor is on (faster scroll) */
-	if (state) {
-		rtc_get(&tm);
-
-		sprintf(info, " %02d:%02d:%02d ", tm.tm_hour, tm.tm_min,
-			tm.tm_sec);
-		video_drawstring(VIDEO_VISIBLE_COLS - 10 * VIDEO_FONT_WIDTH,
-				 VIDEO_INFO_Y, (uchar *) info);
-
-		sprintf(info, "%02d.%02d.%04d", tm.tm_mday, tm.tm_mon,
-			tm.tm_year);
-		video_drawstring(VIDEO_VISIBLE_COLS - 10 * VIDEO_FONT_WIDTH,
-				 VIDEO_INFO_Y + 1 * VIDEO_FONT_HEIGHT,
-				 (uchar *) info);
-	}
-#endif
-
 	if (cursor_state != state) {
 		if (cursor_state) {
 			/* turn off the cursor */
@@ -672,6 +632,8 @@ void console_cursor(int state)
 		}
 		cursor_state = state;
 	}
+	if (cfb_do_flush_cache)
+		flush_cache(VIDEO_FB_ADRS, VIDEO_SIZE);
 }
 #endif
 
@@ -724,32 +686,37 @@ static void console_clear_line(int line, int begin, int end)
 			memsetl(offset + i * VIDEO_LINE_LEN, size, bgx);
 	}
 #endif
-	if (cfb_do_flush_cache)
-		flush_cache((ulong)CONSOLE_ROW_FIRST, CONSOLE_SIZE);
 }
 
 static void console_scrollup(void)
 {
+	const int rows = CONFIG_CONSOLE_SCROLL_LINES;
+	int i;
+
 	/* copy up rows ignoring the first one */
 
 #ifdef VIDEO_HW_BITBLT
 	video_hw_bitblt(VIDEO_PIXEL_SIZE,	/* bytes per pixel */
 			0,			/* source pos x */
 			video_logo_height +
-				VIDEO_FONT_HEIGHT, /* source pos y */
+				VIDEO_FONT_HEIGHT * rows, /* source pos y */
 			0,			/* dest pos x */
 			video_logo_height,	/* dest pos y */
 			VIDEO_VISIBLE_COLS,	/* frame width */
 			VIDEO_VISIBLE_ROWS
 			- video_logo_height
-			- VIDEO_FONT_HEIGHT	/* frame height */
+			- VIDEO_FONT_HEIGHT * rows	/* frame height */
 		);
 #else
-	memcpyl(CONSOLE_ROW_FIRST, CONSOLE_ROW_SECOND,
-		CONSOLE_SCROLL_SIZE >> 2);
+	memcpyl(CONSOLE_ROW_FIRST, CONSOLE_ROW_FIRST + rows * CONSOLE_ROW_SIZE,
+		(CONSOLE_SIZE - CONSOLE_ROW_SIZE * rows) >> 2);
 #endif
 	/* clear the last one */
-	console_clear_line(CONSOLE_ROWS - 1, 0, CONSOLE_COLS - 1);
+	for (i = 1; i <= rows; i++)
+		console_clear_line(CONSOLE_ROWS - i, 0, CONSOLE_COLS - 1);
+
+	/* Decrement row number */
+	console_row -= rows;
 }
 
 static void console_back(void)
@@ -764,18 +731,103 @@ static void console_back(void)
 	}
 }
 
-static void console_newline(void)
+#ifdef CONFIG_CFB_CONSOLE_ANSI
+
+static void console_clear(void)
 {
-	console_row++;
+#ifdef VIDEO_HW_RECTFILL
+	video_hw_rectfill(VIDEO_PIXEL_SIZE,	/* bytes per pixel */
+			  0,			/* dest pos x */
+			  video_logo_height,	/* dest pos y */
+			  VIDEO_VISIBLE_COLS,	/* frame width */
+			  VIDEO_VISIBLE_ROWS,	/* frame height */
+			  bgx			/* fill color */
+	);
+#else
+	memsetl(CONSOLE_ROW_FIRST, CONSOLE_SIZE, bgx);
+#endif
+}
+
+static void console_cursor_fix(void)
+{
+	if (console_row < 0)
+		console_row = 0;
+	if (console_row >= CONSOLE_ROWS)
+		console_row = CONSOLE_ROWS - 1;
+	if (console_col < 0)
+		console_col = 0;
+	if (console_col >= CONSOLE_COLS)
+		console_col = CONSOLE_COLS - 1;
+}
+
+static void console_cursor_up(int n)
+{
+	console_row -= n;
+	console_cursor_fix();
+}
+
+static void console_cursor_down(int n)
+{
+	console_row += n;
+	console_cursor_fix();
+}
+
+static void console_cursor_left(int n)
+{
+	console_col -= n;
+	console_cursor_fix();
+}
+
+static void console_cursor_right(int n)
+{
+	console_col += n;
+	console_cursor_fix();
+}
+
+static void console_cursor_set_position(int row, int col)
+{
+	if (console_row != -1)
+		console_row = row;
+	if (console_col != -1)
+		console_col = col;
+	console_cursor_fix();
+}
+
+static void console_previousline(int n)
+{
+	/* FIXME: also scroll terminal ? */
+	console_row -= n;
+	console_cursor_fix();
+}
+
+static void console_swap_colors(void)
+{
+	eorx = fgx;
+	fgx = bgx;
+	bgx = eorx;
+	eorx = fgx ^ bgx;
+}
+
+static inline int console_cursor_is_visible(void)
+{
+	return !ansi_cursor_hidden;
+}
+#else
+static inline int console_cursor_is_visible(void)
+{
+	return 1;
+}
+#endif
+
+static void console_newline(int n)
+{
+	console_row += n;
 	console_col = 0;
 
 	/* Check if we need to scroll the terminal */
 	if (console_row >= CONSOLE_ROWS) {
 		/* Scroll everything up */
 		console_scrollup();
-
-		/* Decrement row number */
-		console_row--;
 	}
 }
 
@@ -784,11 +836,12 @@ static void console_cr(void)
 	console_col = 0;
 }
 
-void video_putc(const char c)
+static void parse_putc(const char c)
 {
 	static int nl = 1;
 
-	CURSOR_OFF;
+	if (console_cursor_is_visible())
+		CURSOR_OFF;
 
 	switch (c) {
 	case 13:		/* back to first column */
@@ -797,7 +850,7 @@ void video_putc(const char c)
 
 	case '\n':		/* next line */
 		if (console_col || (!console_col && nl))
-			console_newline();
+			console_newline(1);
 		nl = 1;
 		break;
 
@@ -806,7 +859,7 @@ void video_putc(const char c)
 		console_col &= ~0x0007;
 
 		if (console_col >= CONSOLE_COLS)
-			console_newline();
+			console_newline(1);
 		break;
 
 	case 8:		/* backspace */
@@ -823,19 +876,244 @@ void video_putc(const char c)
 
 		/* check for newline */
 		if (console_col >= CONSOLE_COLS) {
-			console_newline();
+			console_newline(1);
 			nl = 0;
 		}
 	}
-	CURSOR_SET;
+
+	if (console_cursor_is_visible())
+		CURSOR_SET;
 }
 
-void video_puts(const char *s)
+static void video_putc(struct stdio_dev *dev, const char c)
 {
+#ifdef CONFIG_CFB_CONSOLE_ANSI
+	int i;
+
+	if (c == 27) {
+		for (i = 0; i < ansi_buf_size; ++i)
+			parse_putc(ansi_buf[i]);
+		ansi_buf[0] = 27;
+		ansi_buf_size = 1;
+		return;
+	}
+
+	if (ansi_buf_size > 0) {
+		/*
+		 * 0 - ESC
+		 * 1 - [
+		 * 2 - num1
+		 * 3 - ..
+		 * 4 - ;
+		 * 5 - num2
+		 * 6 - ..
+		 * - cchar
+		 */
+		int next = 0;
+
+		int flush = 0;
+		int fail = 0;
+
+		int num1 = 0;
+		int num2 = 0;
+		int cchar = 0;
+
+		ansi_buf[ansi_buf_size++] = c;
+
+		if (ansi_buf_size >= sizeof(ansi_buf))
+			fail = 1;
+
+		for (i = 0; i < ansi_buf_size; ++i) {
+			if (fail)
+				break;
+
+			switch (next) {
+			case 0:
+				if (ansi_buf[i] == 27)
+					next = 1;
+				else
+					fail = 1;
+				break;
+
+			case 1:
+				if (ansi_buf[i] == '[')
+					next = 2;
+				else
+					fail = 1;
+				break;
+
+			case 2:
+				if (ansi_buf[i] >= '0' && ansi_buf[i] <= '9') {
+					num1 = ansi_buf[i]-'0';
+					next = 3;
+				} else if (ansi_buf[i] != '?') {
+					--i;
+					num1 = 1;
+					next = 4;
+				}
+				break;
+
+			case 3:
+				if (ansi_buf[i] >= '0' && ansi_buf[i] <= '9') {
+					num1 *= 10;
+					num1 += ansi_buf[i]-'0';
+				} else {
+					--i;
+					next = 4;
+				}
+				break;
+
+			case 4:
+				if (ansi_buf[i] != ';') {
+					--i;
+					next = 7;
+				} else
+					next = 5;
+				break;
+
+			case 5:
+				if (ansi_buf[i] >= '0' && ansi_buf[i] <= '9') {
+					num2 = ansi_buf[i]-'0';
+					next = 6;
+				} else
+					fail = 1;
+				break;
+
+			case 6:
+				if (ansi_buf[i] >= '0' && ansi_buf[i] <= '9') {
+					num2 *= 10;
+					num2 += ansi_buf[i]-'0';
+				} else {
+					--i;
+					next = 7;
+				}
+				break;
+
+			case 7:
+				if ((ansi_buf[i] >= 'A' && ansi_buf[i] <= 'H')
+					|| ansi_buf[i] == 'J'
+					|| ansi_buf[i] == 'K'
+					|| ansi_buf[i] == 'h'
+					|| ansi_buf[i] == 'l'
+					|| ansi_buf[i] == 'm') {
+					cchar = ansi_buf[i];
+					flush = 1;
+				} else
+					fail = 1;
+				break;
+			}
+		}
+
+		if (fail) {
+			for (i = 0; i < ansi_buf_size; ++i)
+				parse_putc(ansi_buf[i]);
+			ansi_buf_size = 0;
+			return;
+		}
+
+		if (flush) {
+			if (!ansi_cursor_hidden)
+				CURSOR_OFF;
+			ansi_buf_size = 0;
+			switch (cchar) {
+			case 'A':
+				/* move cursor num1 rows up */
+				console_cursor_up(num1);
+				break;
+			case 'B':
+				/* move cursor num1 rows down */
+				console_cursor_down(num1);
+				break;
+			case 'C':
+				/* move cursor num1 columns forward */
+				console_cursor_right(num1);
+				break;
+			case 'D':
+				/* move cursor num1 columns back */
+				console_cursor_left(num1);
+				break;
+			case 'E':
+				/* move cursor num1 rows up at begin of row */
+				console_previousline(num1);
+				break;
+			case 'F':
+				/* move cursor num1 rows down at begin of row */
+				console_newline(num1);
+				break;
+			case 'G':
+				/* move cursor to column num1 */
+				console_cursor_set_position(-1, num1-1);
+				break;
+			case 'H':
+				/* move cursor to row num1, column num2 */
+				console_cursor_set_position(num1-1, num2-1);
+				break;
+			case 'J':
+				/* clear console and move cursor to 0, 0 */
+				console_clear();
+				console_cursor_set_position(0, 0);
+				break;
+			case 'K':
+				/* clear line */
+				if (num1 == 0)
+					console_clear_line(console_row,
+							console_col,
+							CONSOLE_COLS-1);
+				else if (num1 == 1)
+					console_clear_line(console_row,
+							0, console_col);
+				else
+					console_clear_line(console_row,
+							0, CONSOLE_COLS-1);
+				break;
+			case 'h':
+				ansi_cursor_hidden = 0;
+				break;
+			case 'l':
+				ansi_cursor_hidden = 1;
+				break;
+			case 'm':
+				if (num1 == 0) { /* reset swapped colors */
+					if (ansi_colors_need_revert) {
+						console_swap_colors();
+						ansi_colors_need_revert = 0;
+					}
+				} else if (num1 == 7) { /* once swap colors */
+					if (!ansi_colors_need_revert) {
+						console_swap_colors();
+						ansi_colors_need_revert = 1;
+					}
+				}
+				break;
+			}
+			if (!ansi_cursor_hidden)
+				CURSOR_SET;
+		}
+	} else {
+		parse_putc(c);
+	}
+#else
+	parse_putc(c);
+#endif
+	if (cfb_do_flush_cache)
+		flush_cache(VIDEO_FB_ADRS, VIDEO_SIZE);
+}
+
+static void video_puts(struct stdio_dev *dev, const char *s)
+{
+	int flush = cfb_do_flush_cache;
 	int count = strlen(s);
 
+	/* temporarily disable cache flush */
+	cfb_do_flush_cache = 0;
+
 	while (count--)
-		video_putc(*s++);
+		video_putc(dev, *s++);
+
+	if (flush) {
+		cfb_do_flush_cache = flush;
+		flush_cache(VIDEO_FB_ADRS, VIDEO_SIZE);
+	}
 }
 
 /*
@@ -843,13 +1121,10 @@ void video_puts(const char *s)
  * video_set_lut() if they do not support 8 bpp format.
  * Implement weak default function instead.
  */
-void __video_set_lut(unsigned int index, unsigned char r,
+__weak void video_set_lut(unsigned int index, unsigned char r,
 		     unsigned char g, unsigned char b)
 {
 }
-
-void video_set_lut(unsigned int, unsigned char, unsigned char, unsigned char)
-	__attribute__ ((weak, alias("__video_set_lut")));
 
 #if defined(CONFIG_CMD_BMP) || defined(CONFIG_SPLASH_SCREEN)
 
@@ -965,7 +1240,7 @@ static void draw_bitmap(uchar **fb, uchar *bm, struct palette *p,
 	*fb = (uchar *) addr;	/* return modified address */
 }
 
-static int display_rle8_bitmap(bmp_image_t *img, int xoff, int yoff,
+static int display_rle8_bitmap(struct bmp_image *img, int xoff, int yoff,
 			       int width, int height)
 {
 	unsigned char *bm;
@@ -974,9 +1249,9 @@ static int display_rle8_bitmap(bmp_image_t *img, int xoff, int yoff,
 	int decode = 1;
 	int x, y, bpp, i, ncolors;
 	struct palette p[256];
-	bmp_color_table_entry_t cte;
+	struct bmp_color_table_entry cte;
 	int green_shift, red_off;
-	int limit = VIDEO_COLS * VIDEO_ROWS;
+	int limit = (VIDEO_LINE_LEN / VIDEO_PIXEL_SIZE) * VIDEO_ROWS;
 	int pixels = 0;
 
 	x = 0;
@@ -984,7 +1259,8 @@ static int display_rle8_bitmap(bmp_image_t *img, int xoff, int yoff,
 	ncolors = __le32_to_cpu(img->header.colors_used);
 	bpp = VIDEO_PIXEL_SIZE;
 	fbp = (unsigned char *) ((unsigned int) video_fb_address +
-				 (((y + yoff) * VIDEO_COLS) + xoff) * bpp);
+				 (y + yoff) * VIDEO_LINE_LEN +
+				 xoff * bpp);
 
 	bm = (uchar *) img + __le32_to_cpu(img->header.data_offset);
 
@@ -1038,8 +1314,8 @@ static int display_rle8_bitmap(bmp_image_t *img, int xoff, int yoff,
 				y--;
 				fbp = (unsigned char *)
 					((unsigned int) video_fb_address +
-					 (((y + yoff) * VIDEO_COLS) +
-					  xoff) * bpp);
+					 (y + yoff) * VIDEO_LINE_LEN +
+					 xoff * bpp);
 				continue;
 			case 1:
 				/* end of bitmap data marker */
@@ -1051,8 +1327,8 @@ static int display_rle8_bitmap(bmp_image_t *img, int xoff, int yoff,
 				y -= bm[3];
 				fbp = (unsigned char *)
 					((unsigned int) video_fb_address +
-					 (((y + yoff) * VIDEO_COLS) +
-					  x + xoff) * bpp);
+					 (y + yoff) * VIDEO_LINE_LEN +
+					 xoff * bpp);
 				bm += 4;
 				break;
 			default:
@@ -1117,13 +1393,13 @@ int video_display_bitmap(ulong bmp_image, int x, int y)
 {
 	ushort xcount, ycount;
 	uchar *fb;
-	bmp_image_t *bmp = (bmp_image_t *) bmp_image;
+	struct bmp_image *bmp = (struct bmp_image *)bmp_image;
 	uchar *bmap;
 	ushort padded_line;
 	unsigned long width, height, bpp;
 	unsigned colors;
 	unsigned long compression;
-	bmp_color_table_entry_t cte;
+	struct bmp_color_table_entry cte;
 
 #ifdef CONFIG_VIDEO_BMP_GZIP
 	unsigned char *dst = NULL;
@@ -1145,7 +1421,11 @@ int video_display_bitmap(ulong bmp_image, int x, int y)
 			printf("Error: malloc in gunzip failed!\n");
 			return 1;
 		}
-		if (gunzip(dst, CONFIG_SYS_VIDEO_LOGO_MAX_SIZE,
+		/*
+		 * NB: we need to force offset of +2
+		 * See doc/README.displaying-bmps
+		 */
+		if (gunzip(dst+2, CONFIG_SYS_VIDEO_LOGO_MAX_SIZE-2,
 			   (uchar *) bmp_image,
 			   &len) != 0) {
 			printf("Error: no valid bmp or bmp.gz image at %lx\n",
@@ -1161,7 +1441,7 @@ int video_display_bitmap(ulong bmp_image, int x, int y)
 		/*
 		 * Set addr to decompressed image
 		 */
-		bmp = (bmp_image_t *) dst;
+		bmp = (struct bmp_image *)(dst+2);
 
 		if (!((bmp->header.signature[0] == 'B') &&
 		      (bmp->header.signature[1] == 'M'))) {
@@ -1203,15 +1483,22 @@ int video_display_bitmap(ulong bmp_image, int x, int y)
 
 #ifdef CONFIG_SPLASH_SCREEN_ALIGN
 	if (x == BMP_ALIGN_CENTER)
-		x = max(0, (VIDEO_VISIBLE_COLS - width) / 2);
+		x = max(0, (int)(VIDEO_VISIBLE_COLS - width) / 2);
 	else if (x < 0)
-		x = max(0, VIDEO_VISIBLE_COLS - width + x + 1);
+		x = max(0, (int)(VIDEO_VISIBLE_COLS - width + x + 1));
 
 	if (y == BMP_ALIGN_CENTER)
-		y = max(0, (VIDEO_VISIBLE_ROWS - height) / 2);
+		y = max(0, (int)(VIDEO_VISIBLE_ROWS - height) / 2);
 	else if (y < 0)
-		y = max(0, VIDEO_VISIBLE_ROWS - height + y + 1);
+		y = max(0, (int)(VIDEO_VISIBLE_ROWS - height + y + 1));
 #endif /* CONFIG_SPLASH_SCREEN_ALIGN */
+
+	/*
+	 * Just ignore elements which are completely beyond screen
+	 * dimensions.
+	 */
+	if ((x >= VIDEO_VISIBLE_COLS) || (y >= VIDEO_VISIBLE_ROWS))
+		return 0;
 
 	if ((x + width) > VIDEO_VISIBLE_COLS)
 		width = VIDEO_VISIBLE_COLS - x;
@@ -1220,7 +1507,7 @@ int video_display_bitmap(ulong bmp_image, int x, int y)
 
 	bmap = (uchar *) bmp + le32_to_cpu(bmp->header.data_offset);
 	fb = (uchar *) (video_fb_address +
-			((y + height - 1) * VIDEO_COLS * VIDEO_PIXEL_SIZE) +
+			((y + height - 1) * VIDEO_LINE_LEN) +
 			x * VIDEO_PIXEL_SIZE);
 
 #ifdef CONFIG_VIDEO_BMP_RLE8
@@ -1256,7 +1543,7 @@ int video_display_bitmap(ulong bmp_image, int x, int y)
 							   cte.blue);
 				}
 				bmap += padded_line;
-				fb -= (VIDEO_VISIBLE_COLS + width) *
+				fb -= VIDEO_LINE_LEN + width *
 					VIDEO_PIXEL_SIZE;
 			}
 			break;
@@ -1287,8 +1574,8 @@ int video_display_bitmap(ulong bmp_image, int x, int y)
 					*fb++ = *bmap++;
 				}
 				bmap += padded_line;
-				fb -= (VIDEO_VISIBLE_COLS + width) *
-							VIDEO_PIXEL_SIZE;
+				fb -= VIDEO_LINE_LEN + width *
+					VIDEO_PIXEL_SIZE;
 			}
 			break;
 		case GDF__8BIT_332RGB:
@@ -1301,8 +1588,8 @@ int video_display_bitmap(ulong bmp_image, int x, int y)
 							 cte.blue);
 				}
 				bmap += padded_line;
-				fb -= (VIDEO_VISIBLE_COLS + width) *
-							VIDEO_PIXEL_SIZE;
+				fb -= VIDEO_LINE_LEN + width *
+					VIDEO_PIXEL_SIZE;
 			}
 			break;
 		case GDF_15BIT_555RGB:
@@ -1325,8 +1612,8 @@ int video_display_bitmap(ulong bmp_image, int x, int y)
 #endif
 				}
 				bmap += padded_line;
-				fb -= (VIDEO_VISIBLE_COLS + width) *
-							VIDEO_PIXEL_SIZE;
+				fb -= VIDEO_LINE_LEN + width *
+					VIDEO_PIXEL_SIZE;
 			}
 			break;
 		case GDF_16BIT_565RGB:
@@ -1339,8 +1626,8 @@ int video_display_bitmap(ulong bmp_image, int x, int y)
 							  cte.blue);
 				}
 				bmap += padded_line;
-				fb -= (VIDEO_VISIBLE_COLS + width) *
-							VIDEO_PIXEL_SIZE;
+				fb -= VIDEO_LINE_LEN + width *
+					VIDEO_PIXEL_SIZE;
 			}
 			break;
 		case GDF_32BIT_X888RGB:
@@ -1353,8 +1640,8 @@ int video_display_bitmap(ulong bmp_image, int x, int y)
 							   cte.blue);
 				}
 				bmap += padded_line;
-				fb -= (VIDEO_VISIBLE_COLS + width) *
-							VIDEO_PIXEL_SIZE;
+				fb -= VIDEO_LINE_LEN + width *
+					VIDEO_PIXEL_SIZE;
 			}
 			break;
 		case GDF_24BIT_888RGB:
@@ -1367,8 +1654,8 @@ int video_display_bitmap(ulong bmp_image, int x, int y)
 							  cte.blue);
 				}
 				bmap += padded_line;
-				fb -= (VIDEO_VISIBLE_COLS + width) *
-							VIDEO_PIXEL_SIZE;
+				fb -= VIDEO_LINE_LEN + width *
+					VIDEO_PIXEL_SIZE;
 			}
 			break;
 		}
@@ -1387,8 +1674,8 @@ int video_display_bitmap(ulong bmp_image, int x, int y)
 					bmap += 3;
 				}
 				bmap += padded_line;
-				fb -= (VIDEO_VISIBLE_COLS + width) *
-							VIDEO_PIXEL_SIZE;
+				fb -= VIDEO_LINE_LEN + width *
+					VIDEO_PIXEL_SIZE;
 			}
 			break;
 		case GDF_15BIT_555RGB:
@@ -1410,8 +1697,8 @@ int video_display_bitmap(ulong bmp_image, int x, int y)
 					bmap += 3;
 				}
 				bmap += padded_line;
-				fb -= (VIDEO_VISIBLE_COLS + width) *
-							VIDEO_PIXEL_SIZE;
+				fb -= VIDEO_LINE_LEN + width *
+					VIDEO_PIXEL_SIZE;
 			}
 			break;
 		case GDF_16BIT_565RGB:
@@ -1424,8 +1711,8 @@ int video_display_bitmap(ulong bmp_image, int x, int y)
 					bmap += 3;
 				}
 				bmap += padded_line;
-				fb -= (VIDEO_VISIBLE_COLS + width) *
-							VIDEO_PIXEL_SIZE;
+				fb -= VIDEO_LINE_LEN + width *
+					VIDEO_PIXEL_SIZE;
 			}
 			break;
 		case GDF_32BIT_X888RGB:
@@ -1438,8 +1725,8 @@ int video_display_bitmap(ulong bmp_image, int x, int y)
 					bmap += 3;
 				}
 				bmap += padded_line;
-				fb -= (VIDEO_VISIBLE_COLS + width) *
-							VIDEO_PIXEL_SIZE;
+				fb -= VIDEO_LINE_LEN + width *
+					VIDEO_PIXEL_SIZE;
 			}
 			break;
 		case GDF_24BIT_888RGB:
@@ -1452,8 +1739,8 @@ int video_display_bitmap(ulong bmp_image, int x, int y)
 					bmap += 3;
 				}
 				bmap += padded_line;
-				fb -= (VIDEO_VISIBLE_COLS + width) *
-							VIDEO_PIXEL_SIZE;
+				fb -= VIDEO_LINE_LEN + width *
+					VIDEO_PIXEL_SIZE;
 			}
 			break;
 		default:
@@ -1474,22 +1761,68 @@ int video_display_bitmap(ulong bmp_image, int x, int y)
 	}
 #endif
 
+	if (cfb_do_flush_cache)
+		flush_cache(VIDEO_FB_ADRS, VIDEO_SIZE);
 	return (0);
 }
 #endif
 
 
 #ifdef CONFIG_VIDEO_LOGO
-void logo_plot(void *screen, int width, int x, int y)
+static int video_logo_xpos;
+static int video_logo_ypos;
+
+static void plot_logo_or_black(void *screen, int x, int y, int black);
+
+static void logo_plot(void *screen, int x, int y)
+{
+	plot_logo_or_black(screen, x, y, 0);
+}
+
+static void logo_black(void)
+{
+	plot_logo_or_black(video_fb_address, video_logo_xpos, video_logo_ypos,
+			1);
+}
+
+static int do_clrlogo(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+{
+	if (argc != 1)
+		return cmd_usage(cmdtp);
+
+	logo_black();
+	return 0;
+}
+
+U_BOOT_CMD(
+	   clrlogo, 1, 0, do_clrlogo,
+	   "fill the boot logo area with black",
+	   " "
+	   );
+
+static void plot_logo_or_black(void *screen, int x, int y, int black)
 {
 
 	int xcount, i;
-	int skip = (width - VIDEO_LOGO_WIDTH) * VIDEO_PIXEL_SIZE;
+	int skip = VIDEO_LINE_LEN - VIDEO_LOGO_WIDTH * VIDEO_PIXEL_SIZE;
 	int ycount = video_logo_height;
 	unsigned char r, g, b, *logo_red, *logo_blue, *logo_green;
 	unsigned char *source;
-	unsigned char *dest = (unsigned char *) screen +
-		((y * width * VIDEO_PIXEL_SIZE) + x * VIDEO_PIXEL_SIZE);
+	unsigned char *dest;
+
+#ifdef CONFIG_SPLASH_SCREEN_ALIGN
+	if (x == BMP_ALIGN_CENTER)
+		x = max(0, (int)(VIDEO_VISIBLE_COLS - VIDEO_LOGO_WIDTH) / 2);
+	else if (x < 0)
+		x = max(0, (int)(VIDEO_VISIBLE_COLS - VIDEO_LOGO_WIDTH + x + 1));
+
+	if (y == BMP_ALIGN_CENTER)
+		y = max(0, (int)(VIDEO_VISIBLE_ROWS - VIDEO_LOGO_HEIGHT) / 2);
+	else if (y < 0)
+		y = max(0, (int)(VIDEO_VISIBLE_ROWS - VIDEO_LOGO_HEIGHT + y + 1));
+#endif /* CONFIG_SPLASH_SCREEN_ALIGN */
+
+	dest = (unsigned char *)screen + y * VIDEO_LINE_LEN + x * VIDEO_PIXEL_SIZE;
 
 #ifdef CONFIG_VIDEO_BMP_LOGO
 	source = bmp_logo_bitmap;
@@ -1525,9 +1858,15 @@ void logo_plot(void *screen, int width, int x, int y)
 #endif
 		xcount = VIDEO_LOGO_WIDTH;
 		while (xcount--) {
-			r = logo_red[*source - VIDEO_LOGO_LUT_OFFSET];
-			g = logo_green[*source - VIDEO_LOGO_LUT_OFFSET];
-			b = logo_blue[*source - VIDEO_LOGO_LUT_OFFSET];
+			if (black) {
+				r = 0x00;
+				g = 0x00;
+				b = 0x00;
+			} else {
+				r = logo_red[*source - VIDEO_LOGO_LUT_OFFSET];
+				g = logo_green[*source - VIDEO_LOGO_LUT_OFFSET];
+				b = logo_blue[*source - VIDEO_LOGO_LUT_OFFSET];
+			}
 
 			switch (VIDEO_DATA_FORMAT) {
 			case GDF__8BIT_INDEX:
@@ -1592,42 +1931,50 @@ static void *video_logo(void)
 	char info[128];
 	int space, len;
 	__maybe_unused int y_off = 0;
+	__maybe_unused ulong addr;
+	__maybe_unused char *s;
+
+	splash_get_pos(&video_logo_xpos, &video_logo_ypos);
 
 #ifdef CONFIG_SPLASH_SCREEN
-	char *s;
-	ulong addr;
-
 	s = getenv("splashimage");
 	if (s != NULL) {
-		int x = 0, y = 0;
-
+		splash_screen_prepare();
 		addr = simple_strtoul(s, NULL, 16);
-#ifdef CONFIG_SPLASH_SCREEN_ALIGN
-		s = getenv("splashpos");
-		if (s != NULL) {
-			if (s[0] == 'm')
-				x = BMP_ALIGN_CENTER;
-			else
-				x = simple_strtol(s, NULL, 0);
 
-			s = strchr(s + 1, ',');
-			if (s != NULL) {
-				if (s[1] == 'm')
-					y = BMP_ALIGN_CENTER;
-				else
-					y = simple_strtol(s + 1, NULL, 0);
-			}
-		}
-#endif /* CONFIG_SPLASH_SCREEN_ALIGN */
-
-		if (video_display_bitmap(addr, x, y) == 0) {
+		if (video_display_bitmap(addr,
+					video_logo_xpos,
+					video_logo_ypos) == 0) {
 			video_logo_height = 0;
 			return ((void *) (video_fb_address));
 		}
 	}
 #endif /* CONFIG_SPLASH_SCREEN */
 
-	logo_plot(video_fb_address, VIDEO_COLS, 0, 0);
+	logo_plot(video_fb_address, video_logo_xpos, video_logo_ypos);
+
+#ifdef CONFIG_SPLASH_SCREEN_ALIGN
+	/*
+	 * when using splashpos for video_logo, skip any info
+	 * output on video console if the logo is not at 0,0
+	 */
+	if (video_logo_xpos || video_logo_ypos) {
+		/*
+		 * video_logo_height is used in text and cursor offset
+		 * calculations. Since the console is below the logo,
+		 * we need to adjust the logo height
+		 */
+		if (video_logo_ypos == BMP_ALIGN_CENTER)
+			video_logo_height += max(0, (int)(VIDEO_VISIBLE_ROWS -
+						     VIDEO_LOGO_HEIGHT) / 2);
+		else if (video_logo_ypos > 0)
+			video_logo_height += video_logo_ypos;
+
+		return video_fb_address + video_logo_height * VIDEO_LINE_LEN;
+	}
+#endif
+	if (board_cfb_skip())
+		return 0;
 
 	sprintf(info, " %s", version_string);
 
@@ -1706,6 +2053,24 @@ defined(CONFIG_SANDBOX) || defined(CONFIG_X86)
 		return 1;
 #endif
 	return 0;
+}
+
+void video_clear(void)
+{
+	if (!video_fb_address)
+		return;
+#ifdef VIDEO_HW_RECTFILL
+	video_hw_rectfill(VIDEO_PIXEL_SIZE,	/* bytes per pixel */
+			  0,			/* dest pos x */
+			  0,			/* dest pos y */
+			  VIDEO_VISIBLE_COLS,	/* frame width */
+			  VIDEO_VISIBLE_ROWS,	/* frame height */
+			  bgx			/* fill color */
+	);
+#else
+	memsetl(video_fb_address,
+		(VIDEO_VISIBLE_ROWS * VIDEO_LINE_LEN) / sizeof(int), bgx);
+#endif
 }
 
 static int video_init(void)
@@ -1794,6 +2159,8 @@ static int video_init(void)
 	}
 	eorx = fgx ^ bgx;
 
+	video_clear();
+
 #ifdef CONFIG_VIDEO_LOGO
 	/* Plot the logo and get start point of console */
 	debug("Video: Drawing the logo ...\n");
@@ -1806,6 +2173,9 @@ static int video_init(void)
 	console_col = 0;
 	console_row = 0;
 
+	if (cfb_do_flush_cache)
+		flush_cache(VIDEO_FB_ADRS, VIDEO_SIZE);
+
 	return 0;
 }
 
@@ -1813,55 +2183,89 @@ static int video_init(void)
  * Implement a weak default function for boards that optionally
  * need to skip the video initialization.
  */
-int __board_video_skip(void)
+__weak int board_video_skip(void)
 {
 	/* As default, don't skip test */
 	return 0;
 }
 
-int board_video_skip(void)
-	__attribute__ ((weak, alias("__board_video_skip")));
-
 int drv_video_init(void)
 {
-	int skip_dev_init;
 	struct stdio_dev console_dev;
+	bool have_keyboard;
+	bool __maybe_unused keyboard_ok = false;
 
 	/* Check if video initialization should be skipped */
 	if (board_video_skip())
 		return 0;
 
 	/* Init video chip - returns with framebuffer cleared */
-	skip_dev_init = (video_init() == -1);
-
-#if !defined(CONFIG_VGA_AS_SINGLE_DEVICE)
-	debug("KBD: Keyboard init ...\n");
-	skip_dev_init |= (VIDEO_KBD_INIT_FCT == -1);
-#endif
-
-	if (skip_dev_init)
+	if (video_init() == -1)
 		return 0;
+
+	if (board_cfb_skip())
+		return 0;
+
+#if defined(CONFIG_VGA_AS_SINGLE_DEVICE)
+	have_keyboard = false;
+#elif defined(CONFIG_OF_CONTROL)
+	have_keyboard = !fdtdec_get_config_bool(gd->fdt_blob,
+						"u-boot,no-keyboard");
+#else
+	have_keyboard = true;
+#endif
+	if (have_keyboard) {
+		debug("KBD: Keyboard init ...\n");
+#if !defined(CONFIG_VGA_AS_SINGLE_DEVICE)
+		keyboard_ok = !(VIDEO_KBD_INIT_FCT == -1);
+#endif
+	}
 
 	/* Init vga device */
 	memset(&console_dev, 0, sizeof(console_dev));
 	strcpy(console_dev.name, "vga");
-	console_dev.ext = DEV_EXT_VIDEO;	/* Video extensions */
-	console_dev.flags = DEV_FLAGS_OUTPUT | DEV_FLAGS_SYSTEM;
+	console_dev.flags = DEV_FLAGS_OUTPUT;
 	console_dev.putc = video_putc;	/* 'putc' function */
 	console_dev.puts = video_puts;	/* 'puts' function */
-	console_dev.tstc = NULL;	/* 'tstc' function */
-	console_dev.getc = NULL;	/* 'getc' function */
 
 #if !defined(CONFIG_VGA_AS_SINGLE_DEVICE)
-	/* Also init console device */
-	console_dev.flags |= DEV_FLAGS_INPUT;
-	console_dev.tstc = VIDEO_TSTC_FCT;	/* 'tstc' function */
-	console_dev.getc = VIDEO_GETC_FCT;	/* 'getc' function */
-#endif /* CONFIG_VGA_AS_SINGLE_DEVICE */
+	if (have_keyboard && keyboard_ok) {
+		/* Also init console device */
+		console_dev.flags |= DEV_FLAGS_INPUT;
+		console_dev.tstc = VIDEO_TSTC_FCT;	/* 'tstc' function */
+		console_dev.getc = VIDEO_GETC_FCT;	/* 'getc' function */
+	}
+#endif
 
 	if (stdio_register(&console_dev) != 0)
 		return 0;
 
 	/* Return success */
 	return 1;
+}
+
+void video_position_cursor(unsigned col, unsigned row)
+{
+	console_col = min(col, CONSOLE_COLS - 1);
+	console_row = min(row, CONSOLE_ROWS - 1);
+}
+
+int video_get_pixel_width(void)
+{
+	return VIDEO_VISIBLE_COLS;
+}
+
+int video_get_pixel_height(void)
+{
+	return VIDEO_VISIBLE_ROWS;
+}
+
+int video_get_screen_rows(void)
+{
+	return CONSOLE_ROWS;
+}
+
+int video_get_screen_columns(void)
+{
+	return CONSOLE_COLS;
 }

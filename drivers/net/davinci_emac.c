@@ -16,31 +16,18 @@
  *
  * ----------------------------------------------------------------------------
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2 of the License, or
- * (at your option) any later version.
+ * SPDX-License-Identifier:	GPL-2.0+
  *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with this program; if not, write to the Free Software
- *  Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
- * ----------------------------------------------------------------------------
-
  * Modifications:
  * ver. 1.0: Sep 2005, Anant Gole - Created EMAC version for uBoot.
  * ver  1.1: Nov 2005, Anant Gole - Extended the RX logic for multiple descriptors
- *
  */
 #include <common.h>
 #include <command.h>
 #include <net.h>
 #include <miiphy.h>
 #include <malloc.h>
+#include <netdev.h>
 #include <linux/compiler.h>
 #include <asm/arch/emac_defs.h>
 #include <asm/io.h>
@@ -472,11 +459,11 @@ static int davinci_eth_open(struct eth_device *dev, bd_t *bis)
 
 	/* Set DMA 8 TX / 8 RX Head pointers to 0 */
 	addr = &adap_emac->TX0HDP;
-	for(cnt = 0; cnt < 16; cnt++)
+	for (cnt = 0; cnt < 8; cnt++)
 		writel(0, addr++);
 
 	addr = &adap_emac->RX0HDP;
-	for(cnt = 0; cnt < 16; cnt++)
+	for (cnt = 0; cnt < 8; cnt++)
 		writel(0, addr++);
 
 	/* Clear Statistics (do this before setting MacControl register) */
@@ -611,7 +598,8 @@ static void davinci_eth_close(struct eth_device *dev)
 	debug_emac("+ emac_close\n");
 
 	davinci_eth_ch_teardown(EMAC_CH_TX);	/* TX Channel teardown */
-	davinci_eth_ch_teardown(EMAC_CH_RX);	/* RX Channel teardown */
+	if (readl(&adap_emac->RXCONTROL) & 1)
+		davinci_eth_ch_teardown(EMAC_CH_RX); /* RX Channel teardown */
 
 	/* Reset EMAC module and disable interrupts in wrapper */
 	writel(1, &adap_emac->SOFTRESET);
@@ -704,8 +692,10 @@ static int davinci_eth_rcv_packet (struct eth_device *dev)
 	davinci_invalidate_rx_descs();
 
 	rx_curr_desc = emac_rx_active_head;
+	if (!rx_curr_desc)
+		return 0;
 	status = rx_curr_desc->pkt_flag_len;
-	if ((rx_curr_desc) && ((status & EMAC_CPPI_OWNERSHIP_BIT) == 0)) {
+	if ((status & EMAC_CPPI_OWNERSHIP_BIT) == 0) {
 		if (status & EMAC_CPPI_RX_ERROR_FRAME) {
 			/* Error in packet - discard it and requeue desc */
 			printf ("WARN: emac_rcv_pkt: Error in packet\n");
@@ -713,8 +703,9 @@ static int davinci_eth_rcv_packet (struct eth_device *dev)
 			unsigned long tmp = (unsigned long)rx_curr_desc->buffer;
 
 			invalidate_dcache_range(tmp, tmp + EMAC_RXBUF_SIZE);
-			NetReceive (rx_curr_desc->buffer,
-				    (rx_curr_desc->buff_off_len & 0xffff));
+			net_process_received_packet(
+				rx_curr_desc->buffer,
+				rx_curr_desc->buff_off_len & 0xffff);
 			ret = rx_curr_desc->buff_off_len & 0xffff;
 		}
 
@@ -788,7 +779,7 @@ int davinci_emac_initialize(void)
 		return -1;
 
 	memset(dev, 0, sizeof *dev);
-	sprintf(dev->name, "DaVinci-EMAC");
+	strcpy(dev->name, "DaVinci-EMAC");
 
 	dev->iobase = 0;
 	dev->init = davinci_eth_open;
@@ -895,5 +886,14 @@ int davinci_emac_initialize(void)
 		miiphy_register(phy[i].name, davinci_mii_phy_read,
 						davinci_mii_phy_write);
 	}
+
+#if defined(CONFIG_DRIVER_TI_EMAC_USE_RMII) && \
+		defined(CONFIG_MACH_DAVINCI_DA850_EVM) && \
+			!defined(CONFIG_DRIVER_TI_EMAC_RMII_NO_NEGOTIATE)
+	for (i = 0; i < num_phy; i++) {
+		if (phy[i].is_phy_connected(i))
+			phy[i].auto_negotiate(i);
+	}
+#endif
 	return(1);
 }

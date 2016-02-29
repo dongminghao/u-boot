@@ -6,53 +6,85 @@
  * Copyright (C) 2011
  * Heiko Schocher, DENX Software Engineering, hs@denx.de.
  *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License as
- * published by the Free Software Foundation; either version 2 of
- * the License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston,
- * MA 02111-1307 USA
+ * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>
+#include <spi.h>
 #include <spi_flash.h>
+#include <errno.h>
+#include <spl.h>
+
+#ifdef CONFIG_SPL_OS_BOOT
+/*
+ * Load the kernel, check for a valid header we can parse, and if found load
+ * the kernel and then device tree.
+ */
+static int spi_load_image_os(struct spi_flash *flash,
+			     struct image_header *header)
+{
+	/* Read for a header, parse or error out. */
+	spi_flash_read(flash, CONFIG_SYS_SPI_KERNEL_OFFS, 0x40,
+		       (void *)header);
+
+	if (image_get_magic(header) != IH_MAGIC)
+		return -1;
+
+	spl_parse_image_header(header);
+
+	spi_flash_read(flash, CONFIG_SYS_SPI_KERNEL_OFFS,
+		       spl_image.size, (void *)spl_image.load_addr);
+
+	/* Read device tree. */
+	spi_flash_read(flash, CONFIG_SYS_SPI_ARGS_OFFS,
+		       CONFIG_SYS_SPI_ARGS_SIZE,
+		       (void *)CONFIG_SYS_SPL_ARGS_ADDR);
+
+	return 0;
+}
+#endif
 
 /*
  * The main entry for SPI booting. It's necessary that SDRAM is already
  * configured and available since this code loads the main U-Boot image
  * from SPI into SDRAM and starts it from there.
  */
-void spi_boot(void)
+int spl_spi_load_image(void)
 {
+	int err = 0;
 	struct spi_flash *flash;
-	void (*uboot)(void) __noreturn;
+	struct image_header *header;
 
 	/*
 	 * Load U-Boot image from SPI flash into RAM
 	 */
 
-	flash = spi_flash_probe(CONFIG_SPL_SPI_BUS, CONFIG_SPL_SPI_CS,
-				CONFIG_SF_DEFAULT_SPEED, SPI_MODE_3);
+	flash = spi_flash_probe(CONFIG_SF_DEFAULT_BUS,
+				CONFIG_SF_DEFAULT_CS,
+				CONFIG_SF_DEFAULT_SPEED,
+				CONFIG_SF_DEFAULT_MODE);
 	if (!flash) {
-		puts("failed.\n");
-		hang();
+		puts("SPI probe failed.\n");
+		return -ENODEV;
 	}
 
-	spi_flash_read(flash, CONFIG_SYS_SPI_U_BOOT_OFFS,
-		       CONFIG_SYS_SPI_U_BOOT_SIZE,
-		       (void *) CONFIG_SYS_TEXT_BASE);
+	/* use CONFIG_SYS_TEXT_BASE as temporary storage area */
+	header = (struct image_header *)(CONFIG_SYS_TEXT_BASE);
 
-	/*
-	 * Jump to U-Boot image
-	 */
-	uboot = (void *) CONFIG_SYS_TEXT_BASE;
-	(*uboot)();
+#ifdef CONFIG_SPL_OS_BOOT
+	if (spl_start_uboot() || spi_load_image_os(flash, header))
+#endif
+	{
+		/* Load u-boot, mkimage header is 64 bytes. */
+		err = spi_flash_read(flash, CONFIG_SYS_SPI_U_BOOT_OFFS, 0x40,
+				     (void *)header);
+		if (err)
+			return err;
+
+		spl_parse_image_header(header);
+		err = spi_flash_read(flash, CONFIG_SYS_SPI_U_BOOT_OFFS,
+			       spl_image.size, (void *)spl_image.load_addr);
+	}
+
+	return err;
 }

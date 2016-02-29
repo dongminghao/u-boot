@@ -6,23 +6,7 @@
  *
  * Configuation settings for the RONETIX PM9261 board.
  *
- * See file CREDITS for list of people who contributed to this
- * project.
- *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License as
- * published by the Free Software Foundation; either version 2 of
- * the License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston,
- * MA 02111-1307 USA
+ * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef __CONFIG_H
@@ -36,6 +20,7 @@
 #include <asm/hardware.h>
 /* ARM asynchronous clock */
 
+
 #define CONFIG_DISPLAY_BOARDINFO
 
 #define MASTER_PLL_DIV		15
@@ -44,12 +29,9 @@
 #define CONFIG_SYS_AT91_SLOW_CLOCK	32768		/* slow clock xtal */
 #define CONFIG_SYS_AT91_MAIN_CLOCK	18432000
 
-#define CONFIG_SYS_HZ		1000
-
 #define CONFIG_SYS_AT91_CPU_NAME	"AT91SAM9261"
 #define CONFIG_PM9261		1	/* on a Ronetix PM9261 Board	*/
 #define CONFIG_ARCH_CPU_INIT
-#undef CONFIG_USE_IRQ			/* we don't need IRQ/FIQ stuff	*/
 #define CONFIG_SYS_TEXT_BASE	0
 
 #define MACH_TYPE_PM9261	1187
@@ -69,15 +51,13 @@
 #define	CONFIG_SYS_MCKR1_VAL		\
 		(AT91_PMC_MCKR_CSS_SLOW |	\
 		 AT91_PMC_MCKR_PRES_1 |	\
-		 AT91_PMC_MCKR_MDIV_2 |	\
-		 AT91_PMC_MCKR_PLLADIV_1)
+		 AT91_PMC_MCKR_MDIV_2)
 
 /* PCK/2 = MCK Master Clock from PLLA */
 #define	CONFIG_SYS_MCKR2_VAL		\
 		(AT91_PMC_MCKR_CSS_PLLA |	\
 		 AT91_PMC_MCKR_PRES_1 |	\
-		 AT91_PMC_MCKR_MDIV_2 |	\
-		 AT91_PMC_MCKR_PLLADIV_1)
+		 AT91_PMC_MCKR_MDIV_2)
 
 /* define PDC[31:16] as DATA[31:16] */
 #define CONFIG_SYS_PIOC_PDR_VAL1	0xFFFF0000
@@ -185,9 +165,9 @@
 
 /* LED */
 #define CONFIG_AT91_LED
-#define	CONFIG_RED_LED		AT91_PIO_PORTC, 12
-#define	CONFIG_GREEN_LED	AT91_PIO_PORTC, 13
-#define	CONFIG_YELLOW_LED	AT91_PIO_PORTC, 15
+#define CONFIG_RED_LED		GPIO_PIN_PC(12)
+#define CONFIG_GREEN_LED	GPIO_PIN_PC(13)
+#define CONFIG_YELLOW_LED	GPIO_PIN_PC(15)
 
 #define CONFIG_BOOTDELAY	3
 
@@ -202,13 +182,6 @@
 /*
  * Command line configuration.
  */
-#include <config_cmd_default.h>
-#undef CONFIG_CMD_BDI
-#undef CONFIG_CMD_IMI
-#undef CONFIG_CMD_FPGA
-#undef CONFIG_CMD_LOADS
-#undef CONFIG_CMD_IMLS
-
 #define CONFIG_CMD_CACHE
 #define CONFIG_CMD_PING		1
 #define CONFIG_CMD_DHCP		1
@@ -223,7 +196,6 @@
 /* DataFlash */
 #define CONFIG_ATMEL_DATAFLASH_SPI
 #define CONFIG_HAS_DATAFLASH
-#define CONFIG_SYS_SPI_WRITE_TOUT		(5 * CONFIG_SYS_HZ)
 #define CONFIG_SYS_MAX_DATAFLASH_BANKS		1
 #define CONFIG_SYS_DATAFLASH_LOGIC_ADDR_CS0	0xC0000000	/* CS0 */
 #define CONFIG_SYS_DATAFLASH_LOGIC_ADDR_CS3	0xD0000000	/* CS3 */
@@ -240,8 +212,8 @@
 #define CONFIG_SYS_NAND_MASK_ALE		(1 << 22)
 /* our CLE is AD21 */
 #define CONFIG_SYS_NAND_MASK_CLE		(1 << 21)
-#define CONFIG_SYS_NAND_ENABLE_PIN		AT91_PIO_PORTC, 14
-#define CONFIG_SYS_NAND_READY_PIN		AT91_PIO_PORTA, 16
+#define CONFIG_SYS_NAND_ENABLE_PIN		GPIO_PIN_PC(14)
+#define CONFIG_SYS_NAND_READY_PIN		GPIO_PIN_PA(16)
 
 /* NOR flash */
 #define CONFIG_SYS_FLASH_CFI			1
@@ -262,6 +234,7 @@
 
 /* USB */
 #define CONFIG_USB_ATMEL
+#define CONFIG_USB_ATMEL_CLK_SEL_PLLB
 #define CONFIG_USB_OHCI_NEW			1
 #define CONFIG_DOS_PARTITION			1
 #define CONFIG_SYS_USB_OHCI_CPU_INIT		1
@@ -362,7 +335,6 @@
 
 #define CONFIG_BAUDRATE			115200
 
-#define CONFIG_SYS_PROMPT		"pm9261> "
 #define CONFIG_SYS_CBSIZE		256
 #define CONFIG_SYS_MAXARGS		16
 #define CONFIG_SYS_PBSIZE		\
@@ -379,11 +351,5 @@
 #define CONFIG_SYS_SDRAM_BASE	PHYS_SDRAM
 #define CONFIG_SYS_INIT_SP_ADDR	(CONFIG_SYS_SDRAM_BASE + 0x1000 - \
 				GENERATED_GBL_DATA_SIZE)
-
-#define CONFIG_STACKSIZE		(32 * 1024)	/* regular stack */
-
-#ifdef CONFIG_USE_IRQ
-#error CONFIG_USE_IRQ not supported
-#endif
 
 #endif

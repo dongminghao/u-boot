@@ -5,50 +5,47 @@
 #
 # Normal rules
 #
-
-*.rej
-*.orig
-*.a
+.*
 *.o
-*~
 *.swp
-*.patch
 *.bin
+*.patch
+*.cfgtmp
+
+# host programs on Cygwin
+*.exe
+
+# Build tree
+/build-*
 
 #
 # Top-level generic files
 #
-
-/MLO
+/MLO*
+/SPL
 /System.map
-/u-boot
-/u-boot.hex
-/u-boot.imx
-/u-boot.map
-/u-boot.srec
-/u-boot.ldr
-/u-boot.ldr.hex
-/u-boot.ldr.srec
-/u-boot.img
-/u-boot.kwb
-/u-boot.sha1
-/u-boot.dis
-/u-boot.lds
-/u-boot.ubl
-/u-boot.dtb
-/u-boot.sb
+/u-boot*
+/boards.cfg
+
+#
+# git files that we don't want to ignore even it they are dot-files
+#
+!.gitignore
+!.mailmap
 
 #
 # Generated files
 #
-
-*.depend*
 /LOG
-/errlog
-/reloc_off
+/spl/
+/tpl/
+/defconfig
 
+#
+# Generated include files
+#
+/include/config/
 /include/generated/
-asm-offsets.s
 
 # stgit generated dirs
 patches-*
@@ -69,7 +66,12 @@ cscope.*
 /ctags
 /etags
 
-# OneNAND IPL files
-/onenand_ipl/onenand-ipl*
-/onenand_ipl/board/*/onenand*
-/onenand_ipl/board/*/*.S
+# gnu global files
+GPATH
+GRTAGS
+GSYMS
+GTAGS
+
+*.orig
+*~
+\#*#

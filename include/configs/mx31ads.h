@@ -3,20 +3,7 @@
  *
  * Configuration settings for the MX31ADS Freescale board.
  *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License as
- * published by the Free Software Foundation; either version 2 of
- * the License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.	 See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston,
- * MA 02111-1307 USA
+ * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef __CONFIG_H
@@ -25,10 +12,8 @@
 #include <asm/arch/imx-regs.h>
 
  /* High Level Configuration Options */
-#define CONFIG_ARM1136		1		/* This is an arm1136 CPU core */
-#define CONFIG_MX31		1		/* in a mx31 */
-#define CONFIG_MX31_HCLK_FREQ	26000000	/* RedBoot says 26MHz */
-#define CONFIG_MX31_CLK32	32768
+#define CONFIG_MX31		1		/* This is a mx31 */
+
 
 #define CONFIG_DISPLAY_CPUINFO
 #define CONFIG_DISPLAY_BOARDINFO
@@ -70,9 +55,9 @@
 #define CONFIG_MXC_GPIO
 
 /* PMIC Controller */
-#define CONFIG_PMIC
-#define CONFIG_PMIC_SPI
-#define CONFIG_PMIC_FSL
+#define CONFIG_POWER
+#define CONFIG_POWER_SPI
+#define CONFIG_POWER_FSL
 #define CONFIG_FSL_PMIC_BUS	1
 #define CONFIG_FSL_PMIC_CS	0
 #define CONFIG_FSL_PMIC_CLK	1000000
@@ -88,9 +73,6 @@
 /***********************************************************
  * Command definition
  ***********************************************************/
-
-#include <config_cmd_default.h>
-
 #define CONFIG_CMD_PING
 #define CONFIG_CMD_DHCP
 #define CONFIG_CMD_SPI
@@ -138,7 +120,6 @@
  * Miscellaneous configurable options
  */
 #define CONFIG_SYS_LONGHELP		/* undef to save memory */
-#define CONFIG_SYS_PROMPT		"=> "
 #define CONFIG_SYS_CBSIZE		256		/* Console I/O Buffer Size */
 /* Print Buffer Size */
 #define CONFIG_SYS_PBSIZE		(CONFIG_SYS_CBSIZE + sizeof(CONFIG_SYS_PROMPT) + 16)
@@ -150,16 +131,7 @@
 
 #define CONFIG_SYS_LOAD_ADDR		CONFIG_LOADADDR
 
-#define CONFIG_SYS_HZ			1000
-
 #define CONFIG_CMDLINE_EDITING	1
-
-/*-----------------------------------------------------------------------
- * Stack sizes
- *
- * The stack sizes are set up in start.S using the settings below
- */
-#define CONFIG_STACKSIZE	(128 * 1024)	/* regular stack */
 
 /*-----------------------------------------------------------------------
  * Physical Memory Map

@@ -9,12 +9,13 @@
 #ifndef __CONFIG_H
 #define __CONFIG_H
 
+#define CONFIG_DISPLAY_BOARDINFO
+
 /*
  * High Level Configuration Options
  */
 #define CONFIG_E300		1	/* E300 family */
 #define CONFIG_QE		1	/* Has QE */
-#define CONFIG_MPC83xx		1	/* MPC83xx family */
 #define CONFIG_MPC832x		1	/* MPC832x CPU specific */
 
 #define	CONFIG_SYS_TEXT_BASE	0xFE000000
@@ -156,7 +157,7 @@
 
 /* CONFIG_SYS_MONITOR_LEN must be a multiple of CONFIG_ENV_SECT_SIZE */
 #define CONFIG_SYS_MONITOR_LEN	(384 * 1024)	/* Reserve 384 kB for Mon */
-#define CONFIG_SYS_MALLOC_LEN	(128 * 1024)	/* Reserved for malloc */
+#define CONFIG_SYS_MALLOC_LEN	(256 * 1024)	/* Reserved for malloc */
 
 /*
  * Initial RAM Base Address Setup
@@ -211,7 +212,6 @@
  * Serial Port
  */
 #define CONFIG_CONS_INDEX	1
-#define CONFIG_SYS_NS16550
 #define CONFIG_SYS_NS16550_SERIAL
 #define CONFIG_SYS_NS16550_REG_SIZE	1
 #define CONFIG_SYS_NS16550_CLK		get_bus_freq(0)
@@ -233,13 +233,12 @@
 #define CONFIG_OF_STDOUT_VIA_ALIAS	1
 
 /* I2C */
-#define CONFIG_HARD_I2C		/* I2C with hardware support */
-#undef CONFIG_SOFT_I2C		/* I2C bit-banged */
-#define CONFIG_FSL_I2C
-#define CONFIG_SYS_I2C_SPEED	400000	/* I2C speed and slave address */
-#define CONFIG_SYS_I2C_SLAVE	0x7F
-#define CONFIG_SYS_I2C_NOPROBES	{0x51}	/* Don't probe these addrs */
-#define CONFIG_SYS_I2C_OFFSET	0x3000
+#define CONFIG_SYS_I2C
+#define CONFIG_SYS_I2C_FSL
+#define CONFIG_SYS_FSL_I2C_SPEED	400000
+#define CONFIG_SYS_FSL_I2C_SLAVE	0x7F
+#define CONFIG_SYS_FSL_I2C_OFFSET	0x3000
+#define CONFIG_SYS_I2C_NOPROBES		{ {0, 0x51} }
 
 /*
  * Config on-board EEPROM
@@ -264,6 +263,7 @@
 #define CONFIG_SYS_PCI1_IO_SIZE		0x04000000	/* 64M */
 
 #ifdef CONFIG_PCI
+#define CONFIG_PCI_INDIRECT_BRIDGE
 #define CONFIG_PCI_SKIP_HOST_BRIDGE
 #define CONFIG_PCI_PNP		/* do pci plug-and-play */
 
@@ -333,8 +333,6 @@
 /*
  * Command line configuration.
  */
-#include <config_cmd_default.h>
-
 #define CONFIG_CMD_PING
 #define CONFIG_CMD_I2C
 #define CONFIG_CMD_EEPROM
@@ -342,10 +340,6 @@
 
 #if defined(CONFIG_PCI)
 	#define CONFIG_CMD_PCI
-#endif
-#if defined(CONFIG_SYS_RAMBOOT)
-	#undef CONFIG_CMD_SAVEENV
-	#undef CONFIG_CMD_LOADS
 #endif
 
 #undef CONFIG_WATCHDOG		/* watchdog disabled */
@@ -355,7 +349,6 @@
  */
 #define CONFIG_SYS_LONGHELP			/* undef to save memory */
 #define CONFIG_SYS_LOAD_ADDR	0x2000000	/* default load address */
-#define CONFIG_SYS_PROMPT	"=> "	/* Monitor Command Prompt */
 
 #if (CONFIG_CMD_KGDB)
 	#define CONFIG_SYS_CBSIZE	1024	/* Console I/O Buffer Size */
@@ -368,7 +361,6 @@
 #define CONFIG_SYS_MAXARGS	16		/* max number of command args */
 				/* Boot Argument Buffer Size */
 #define CONFIG_SYS_BARGSIZE	CONFIG_SYS_CBSIZE
-#define CONFIG_SYS_HZ		1000	/* decrementer freq: 1ms ticks */
 
 /*
  * For booting Linux, the board info and command line data
@@ -483,7 +475,6 @@
 
 #if (CONFIG_CMD_KGDB)
 #define CONFIG_KGDB_BAUDRATE	230400	/* speed of kgdb serial port */
-#define CONFIG_KGDB_SER_INDEX	2	/* which serial port to use */
 #endif
 
 /*
@@ -514,18 +505,20 @@
 #define CONFIG_BOOTDELAY	6	/* -1 disables auto-boot */
 #define CONFIG_BAUDRATE		115200
 
-#define XMK_STR(x)	#x
-#define MK_STR(x)	XMK_STR(x)
-
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	"netdev=" CONFIG_NETDEV "\0"					\
 	"uboot=" CONFIG_UBOOTPATH "\0"					\
 	"tftpflash=tftp $loadaddr $uboot;"				\
-		"protect off " MK_STR(CONFIG_SYS_TEXT_BASE) " +$filesize; "\
-		"erase " MK_STR(CONFIG_SYS_TEXT_BASE) " +$filesize; "	\
-		"cp.b $loadaddr " MK_STR(CONFIG_SYS_TEXT_BASE) " $filesize; "\
-		"protect on " MK_STR(CONFIG_SYS_TEXT_BASE) " +$filesize; "\
-		"cmp.b $loadaddr " MK_STR(CONFIG_SYS_TEXT_BASE) " $filesize\0"\
+		"protect off " __stringify(CONFIG_SYS_TEXT_BASE)	\
+			" +$filesize; "	\
+		"erase " __stringify(CONFIG_SYS_TEXT_BASE)		\
+			" +$filesize; "	\
+		"cp.b $loadaddr " __stringify(CONFIG_SYS_TEXT_BASE)	\
+			" $filesize; "	\
+		"protect on " __stringify(CONFIG_SYS_TEXT_BASE)		\
+			" +$filesize; "	\
+		"cmp.b $loadaddr " __stringify(CONFIG_SYS_TEXT_BASE)	\
+			" $filesize\0"	\
 	"fdtaddr=780000\0"						\
 	"fdtfile=" CONFIG_FDTFILE "\0"					\
 	"ramdiskaddr=1000000\0"						\
@@ -553,8 +546,5 @@
 	"tftp $loadaddr $bootfile;"					\
 	"tftp $fdtaddr $fdtfile;"					\
 	"bootm $loadaddr $ramdiskaddr $fdtaddr"
-
-#undef MK_STR
-#undef XMK_STR
 
 #endif	/* __CONFIG_H */

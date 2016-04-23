@@ -389,6 +389,7 @@ struct s3c24x0_gpio {
 	u32	misccr;
 	u32	extint;
 #endif
+
 #ifdef CONFIG_S3C2410
 	u32	gpacon;
 	u32	gpadat;
@@ -439,6 +440,7 @@ struct s3c24x0_gpio {
 	u32	gstatus3;
 	u32	gstatus4;
 #endif
+
 #if defined(CONFIG_S3C2440)
 	u32	gpacon;
 	u32	gpadat;

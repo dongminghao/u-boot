@@ -52,7 +52,10 @@
  */
 
 DECLARE_GLOBAL_DATA_PTR;
-
+/*
+#define _DEBUG  1
+#define DEBUG  1
+*/
 static uint flash_offset_cfi[2] = { FLASH_OFFSET_CFI, FLASH_OFFSET_CFI_ALT };
 #ifdef CONFIG_FLASH_CFI_MTD
 static uint flash_verbose = 1;

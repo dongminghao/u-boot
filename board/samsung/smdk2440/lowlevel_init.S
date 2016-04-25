@@ -102,10 +102,12 @@
 /* REFRESH parameter */
 #define REFEN			0x1	/* Refresh enable */
 #define TREFMD			0x0	/* CBR(CAS before RAS)/Auto refresh */
-#define Trp			0x0	/* 2clk */
+/* #define Trp			0x0	*/ /* 2clk */
+#define Trp			0x2	/* 4clk */
 #define Trc			0x3	/* 7clk */
 #define Tchr			0x2	/* 3clk */
-#define REFCNT			1113	/* period=15.6us, HCLK=60Mhz, (2048+1-15.6*60) */
+/*#define REFCNT			1113 */	/* period=15.6us, HCLK=60Mhz, (2048+1-15.6*60) */
+#define REFCNT			1256	/* period=7.812us, HCLK=101Mhz, (2048+1-7.812*50) */
 /**************************************/
 
 .globl lowlevel_init

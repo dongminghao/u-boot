@@ -19,6 +19,11 @@
 #define CONFIG_IODELAY_RECALIBRATION
 #endif
 
+#define CONFIG_VERY_BIG_RAM
+#define CONFIG_PHYS_64BIT
+#define CONFIG_NR_DRAM_BANKS		2
+#define CONFIG_MAX_MEM_MAPPED		0x80000000
+
 #ifndef CONFIG_QSPI_BOOT
 /* MMC ENV related defines */
 #define CONFIG_ENV_IS_IN_MMC
@@ -44,8 +49,25 @@
 #ifndef CONFIG_SPL_BUILD
 /* Define the default GPT table for eMMC */
 #define PARTS_DEFAULT \
+	/* Linux partitions */ \
 	"uuid_disk=${uuid_gpt_disk};" \
-	"name=rootfs,start=2MiB,size=-,uuid=${uuid_gpt_rootfs}"
+	"name=rootfs,start=2MiB,size=-,uuid=${uuid_gpt_rootfs}\0" \
+	/* Android partitions */ \
+	"partitions_android=" \
+	"uuid_disk=${uuid_gpt_disk};" \
+	"name=xloader,start=128K,size=128K,uuid=${uuid_gpt_xloader};" \
+	"name=bootloader,size=384K,uuid=${uuid_gpt_bootloader};" \
+	"name=environment,size=128K,uuid=${uuid_gpt_environment};" \
+	"name=misc,size=128K,uuid=${uuid_gpt_misc};" \
+	"name=efs,start=1280K,size=16M,uuid=${uuid_gpt_efs};" \
+	"name=crypto,size=16K,uuid=${uuid_gpt_crypto};" \
+	"name=recovery,size=10M,uuid=${uuid_gpt_recovery};" \
+	"name=boot,size=10M,uuid=${uuid_gpt_boot};" \
+	"name=system,size=768M,uuid=${uuid_gpt_system};" \
+	"name=cache,size=256M,uuid=${uuid_gpt_cache};" \
+	"name=ipu1,size=1M,uuid=${uuid_gpt_ipu1};" \
+	"name=ipu2,size=1M,uuid=${uuid_gpt_ipu2};" \
+	"name=userdata,size=-,uuid=${uuid_gpt_userdata}"
 
 #define DFU_ALT_INFO_MMC \
 	"dfu_alt_info_mmc=" \
@@ -116,6 +138,7 @@
 /* Enhance our eMMC support / experience. */
 #define CONFIG_CMD_GPT
 #define CONFIG_EFI_PARTITION
+#define CONFIG_RANDOM_UUID
 #define CONFIG_HSMMC2_8BIT
 
 /* CPSW Ethernet */
@@ -132,6 +155,7 @@
 #define CONFIG_MII			/* Required in net/eth.c */
 #define CONFIG_PHY_GIGE			/* per-board part of CPSW */
 #define CONFIG_PHYLIB
+#define CONFIG_PHY_TI
 
 /* SPI */
 #undef	CONFIG_OMAP3_SPI
@@ -201,20 +225,6 @@
 
 #define CONFIG_OMAP_USB_PHY
 #define CONFIG_OMAP_USB2PHY2_HOST
-
-/* USB GADGET */
-#define CONFIG_USB_DWC3_PHY_OMAP
-#define CONFIG_USB_DWC3_OMAP
-#define CONFIG_USB_DWC3
-#define CONFIG_USB_DWC3_GADGET
-
-#define CONFIG_USB_GADGET
-#define CONFIG_USB_GADGET_DOWNLOAD
-#define CONFIG_USB_GADGET_VBUS_DRAW 2
-#define CONFIG_G_DNL_MANUFACTURER "Texas Instruments"
-#define CONFIG_G_DNL_VENDOR_NUM 0x0451
-#define CONFIG_G_DNL_PRODUCT_NUM 0xd022
-#define CONFIG_USB_GADGET_DUALSPEED
 
 /* USB Device Firmware Update support */
 #define CONFIG_USB_FUNCTION_DFU
@@ -322,5 +332,9 @@
 #define CONFIG_ENV_OFFSET_REDUND	0x001e0000
 #endif
 #endif  /* NOR support */
+
+/* EEPROM */
+#define CONFIG_EEPROM_CHIP_ADDRESS 0x50
+#define CONFIG_EEPROM_BUS_ADDRESS 0
 
 #endif /* __CONFIG_DRA7XX_EVM_H */

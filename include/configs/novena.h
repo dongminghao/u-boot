@@ -13,7 +13,6 @@
 #define CONFIG_BOARD_EARLY_INIT_F
 #define CONFIG_BOARD_LATE_INIT
 #define CONFIG_MISC_INIT_R
-#define CONFIG_FIT
 #define CONFIG_KEYBOARD
 
 #include <config_distro_defaults.h>
@@ -166,9 +165,7 @@
 #define CONFIG_MXC_USB_PORTSC		(PORT_PTS_UTMI | PORT_PTS_PTW)
 #define CONFIG_MXC_USB_FLAGS		0
 /* Gadget part */
-#define CONFIG_CI_UDC
 #define CONFIG_USBD_HS
-#define CONFIG_USB_GADGET_DUALSPEED
 #define CONFIG_USB_ETHER
 #define CONFIG_USB_ETH_CDC
 #define CONFIG_NETCONSOLE

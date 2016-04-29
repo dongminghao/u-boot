@@ -68,23 +68,86 @@ copyex:
 	mov	r1, #0x0
 	str	r1, [r0]
 
+# if defined(CONFIG_S3C2440)
+#  define LOCKTIME    0x4c000000 
+#  define MPLLCON     0x4c000004 
+#  define UPLLCON     0x4c000008 
+
+#  define INTSUBMSK_val    0xffff
+#  define MPLLCON_val    ((184 << 12) + (2 << 4) + 2)    /*406M*/
+#  define UPLLCON_val     ((60 << 12) + (4 << 4) + 2) /* 47M */
+#  define CAMDIVN    0x4C000018
+# endif
+
 	/*
 	 * mask all IRQs by setting all bits in the INTMR - default
 	 */
 	mov	r1, #0xffffffff
 	ldr	r0, =INTMSK
 	str	r1, [r0]
+
 # if defined(CONFIG_S3C2410)
 	ldr	r1, =0x3ff
 	ldr	r0, =INTSUBMSK
 	str	r1, [r0]
-# endif
 
 	/* FCLK:HCLK:PCLK = 1:2:4 */
 	/* default FCLK is 120 MHz ! */
 	ldr	r0, =CLKDIVN
 	mov	r1, #3
 	str	r1, [r0]
+# endif
+
+# if defined(CONFIG_S3C2440)
+        ldr     r1, =INTSUBMSK_val
+        ldr     r0, =INTSUBMSK
+        str     r1, [r0]
+	
+	ldr r0,=LOCKTIME
+	ldr r1,=0xffffff
+	str r1,[r0]
+
+        /* FCLK:HCLK:PCLK = 1:4:8 */
+        /* default FCLK is 406 MHz ! */
+        ldr     r0, =CLKDIVN
+        mov     r1, #5
+        str     r1, [r0]	
+
+	/* set MPLL
+	ldr    r0,=MPLLCON
+	ldr    r1,=MPLLCON_val
+	str    r1,[r0]
+*/		
+	/* set Camera Clock*/
+	ldr r0, =CAMDIVN
+	mov r1, #0
+	str r1, [r0]
+
+	/* Clock asynchronous mode */
+	mrc p15, 0, r1, c1, c0, 0
+	orr r1, r1, #0xc0000000
+	mcr p15, 0, r1, c1, c0, 0
+	
+	/* set USB Clock*/
+	ldr    r0,=UPLLCON
+	ldr    r1,=UPLLCON_val
+	str    r1,[r0]
+	
+	/*wait > 5 clock*/
+	nop
+	nop
+	nop
+	nop
+	nop
+	nop
+	nop
+	nop
+	/* set MPLL*/	
+	ldr    r0,=MPLLCON
+	ldr    r1,=MPLLCON_val
+	str    r1,[r0]
+
+# endif
 #endif	/* CONFIG_S3C24X0 */
 
 	/*
@@ -131,7 +194,7 @@ cpu_init_crit:
 	mrc	p15, 0, r0, c1, c0, 0
 	bic	r0, r0, #0x00002300	@ clear bits 13, 9:8 (--V- --RS)
 	bic	r0, r0, #0x00000087	@ clear bits 7, 2:0 (B--- -CAM)
-	orr	r0, r0, #0x00000002	@ set bit 2 (A) Align
+	orr	r0, r0, #0x00000002	@ set bit 1 (A) Align
 	orr	r0, r0, #0x00001000	@ set bit 12 (I) I-Cache
 	mcr	p15, 0, r0, c1, c0, 0
 

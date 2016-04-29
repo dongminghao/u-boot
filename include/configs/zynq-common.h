@@ -39,14 +39,13 @@
 #define CONFIG_ARM_DCC
 #define CONFIG_ZYNQ_SERIAL
 
-#define CONFIG_ZYNQ_GPIO
-
 /* Ethernet driver */
 #if defined(CONFIG_ZYNQ_GEM)
 # define CONFIG_MII
 # define CONFIG_SYS_FAULT_ECHO_LINK_DOWN
 # define CONFIG_PHY_MARVELL
 # define CONFIG_PHY_REALTEK
+# define CONFIG_PHY_XILINX
 # define CONFIG_BOOTP_SERVERIP
 # define CONFIG_BOOTP_BOOTPATH
 # define CONFIG_BOOTP_GATEWAY
@@ -96,27 +95,17 @@
 # define CONFIG_CMD_USB
 # define CONFIG_USB_STORAGE
 # define CONFIG_USB_EHCI_ZYNQ
-# define CONFIG_USB_ULPI_VIEWPORT
-# define CONFIG_USB_ULPI
 # define CONFIG_EHCI_IS_TDI
 # define CONFIG_USB_MAX_CONTROLLER_COUNT	2
 
-# define CONFIG_CI_UDC           /* ChipIdea CI13xxx UDC */
-# define CONFIG_USB_GADGET
-# define CONFIG_USB_GADGET_DUALSPEED
-# define CONFIG_USB_GADGET_DOWNLOAD
 # define CONFIG_SYS_DFU_DATA_BUF_SIZE	0x600000
 # define DFU_DEFAULT_POLL_TIMEOUT	300
 # define CONFIG_USB_FUNCTION_DFU
 # define CONFIG_DFU_RAM
-# define CONFIG_USB_GADGET_VBUS_DRAW	2
-# define CONFIG_G_DNL_VENDOR_NUM	0x03FD
-# define CONFIG_G_DNL_PRODUCT_NUM	0x0300
-# define CONFIG_G_DNL_MANUFACTURER	"Xilinx"
-# define CONFIG_USB_GADGET
 # define CONFIG_USB_CABLE_CHECK
 # define CONFIG_CMD_DFU
 # define CONFIG_CMD_THOR_DOWNLOAD
+# define CONFIG_THOR_RESET_OFF
 # define CONFIG_USB_FUNCTION_THOR
 # define DFU_ALT_INFO_RAM \
 	"dfu_ram_info=" \
@@ -206,7 +195,11 @@
 # define CONFIG_ENV_OFFSET		0xE0000
 #endif
 
+/* enable preboot to be loaded before CONFIG_BOOTDELAY */
+#define CONFIG_PREBOOT
+
 /* Default environment */
+#ifndef CONFIG_EXTRA_ENV_SETTINGS
 #define CONFIG_EXTRA_ENV_SETTINGS	\
 	"fit_image=fit.itb\0"		\
 	"load_addr=0x2000000\0"		\
@@ -215,6 +208,29 @@
 	"nor_flash_off=0xE2100000\0"	\
 	"fdt_high=0x20000000\0"		\
 	"initrd_high=0x20000000\0"	\
+	"loadbootenv_addr=0x2000000\0" \
+	"bootenv=uEnv.txt\0" \
+	"bootenv_dev=mmc\0" \
+	"loadbootenv=load ${bootenv_dev} 0 ${loadbootenv_addr} ${bootenv}\0" \
+	"importbootenv=echo Importing environment from ${bootenv_dev} ...; " \
+		"env import -t ${loadbootenv_addr} $filesize\0" \
+	"bootenv_existence_test=test -e ${bootenv_dev} 0 /${bootenv}\0" \
+	"setbootenv=if env run bootenv_existence_test; then " \
+			"if env run loadbootenv; then " \
+				"env run importbootenv; " \
+			"fi; " \
+		"fi; \0" \
+	"sd_loadbootenv=set bootenv_dev mmc && " \
+			"run setbootenv \0" \
+	"usb_loadbootenv=set bootenv_dev usb && usb start && run setbootenv \0" \
+	"preboot=if test $modeboot = sdboot; then " \
+			"run sd_loadbootenv; " \
+			"echo Checking if uenvcmd is set ...; " \
+			"if test -n $uenvcmd; then " \
+				"echo Running uenvcmd ...; " \
+				"run uenvcmd; " \
+			"fi; " \
+		"fi; \0" \
 	"norboot=echo Copying FIT from NOR flash to RAM... && " \
 		"cp.b ${nor_flash_off} ${load_addr} ${fit_size} && " \
 		"bootm ${load_addr}\0" \
@@ -229,6 +245,7 @@
 			"load usb 0 ${load_addr} ${fit_image} && " \
 			"bootm ${load_addr}; fi\0" \
 		DFU_ALT_INFO
+#endif
 
 #define CONFIG_BOOTCOMMAND		"run $modeboot"
 #define CONFIG_BOOTDELAY		3 /* -1 to Disable autoboot */
@@ -252,15 +269,17 @@
 /* Physical Memory map */
 #define CONFIG_SYS_TEXT_BASE		0x4000000
 
-#define CONFIG_NR_DRAM_BANKS		1
-#define CONFIG_SYS_SDRAM_BASE		0
+#ifndef CONFIG_NR_DRAM_BANKS
+# define CONFIG_NR_DRAM_BANKS		1
+#endif
 
-#define CONFIG_SYS_MEMTEST_START	CONFIG_SYS_SDRAM_BASE
-#define CONFIG_SYS_MEMTEST_END		(CONFIG_SYS_SDRAM_BASE + 0x1000)
+#define CONFIG_SYS_MEMTEST_START	0
+#define CONFIG_SYS_MEMTEST_END		0x1000
 
 #define CONFIG_SYS_MALLOC_LEN		0x1400000
-#define CONFIG_SYS_INIT_RAM_ADDR	CONFIG_SYS_SDRAM_BASE
-#define CONFIG_SYS_INIT_RAM_SIZE	CONFIG_SYS_MALLOC_LEN
+
+#define CONFIG_SYS_INIT_RAM_ADDR	0xFFFF0000
+#define CONFIG_SYS_INIT_RAM_SIZE	0x1000
 #define CONFIG_SYS_INIT_SP_ADDR		(CONFIG_SYS_INIT_RAM_ADDR + \
 					CONFIG_SYS_INIT_RAM_SIZE - \
 					GENERATED_GBL_DATA_SIZE)
@@ -273,9 +292,6 @@
 #define CONFIG_CMD_FPGA_LOADP
 #define CONFIG_CMD_FPGA_LOADBP
 #define CONFIG_CMD_FPGA_LOADFS
-
-/* Open Firmware flat tree */
-#define CONFIG_OF_LIBFDT
 
 /* FIT support */
 #define CONFIG_IMAGE_FORMAT_LEGACY /* enable also legacy image format */

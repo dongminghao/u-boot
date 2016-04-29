@@ -97,10 +97,6 @@
 
 #endif /* CONFIG_SPI_FLASH */
 
-/* Flattened Image Tree Suport */
-#define CONFIG_FIT
-#define CONFIG_FIT_VERBOSE
-
 /* I2C Configs */
 #define CONFIG_CMD_I2C
 #define CONFIG_SYS_I2C
@@ -188,25 +184,15 @@
 #define CONFIG_MXC_USB_PORTSC     (PORT_PTS_UTMI | PORT_PTS_PTW)
 #define CONFIG_MXC_USB_FLAGS      0
 #define CONFIG_USB_KEYBOARD
-#define CONFIG_CI_UDC
 #define CONFIG_USBD_HS
-#define CONFIG_USB_GADGET_DUALSPEED
 #define CONFIG_USB_ETHER
 #define CONFIG_USB_ETH_CDC
 #define CONFIG_NETCONSOLE
 #define CONFIG_SYS_USB_EVENT_POLL_VIA_CONTROL_EP
 
 /* USB Mass Storage Gadget */
-#define CONFIG_USB_GADGET
 #define CONFIG_CMD_USB_MASS_STORAGE
 #define CONFIG_USB_FUNCTION_MASS_STORAGE
-#define CONFIG_USB_GADGET_DOWNLOAD
-#define CONFIG_USB_GADGET_VBUS_DRAW    2
-
-/* Netchip IDs */
-#define CONFIG_G_DNL_VENDOR_NUM 0x0525
-#define CONFIG_G_DNL_PRODUCT_NUM 0xa4a5
-#define CONFIG_G_DNL_MANUFACTURER "Gateworks"
 
 /* Framebuffer and LCD */
 #define CONFIG_VIDEO
@@ -442,7 +428,6 @@
 	"done"
 
 /* Device Tree Support */
-#define CONFIG_OF_BOARD_SETUP
 #define CONFIG_FDT_FIXUP_PARTITIONS
 
 #endif			       /* __CONFIG_H */

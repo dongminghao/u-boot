@@ -105,13 +105,24 @@ static inline void sg_set_pinsel(unsigned pin, unsigned muxval,
 				 unsigned mux_bits, unsigned reg_stride)
 {
 	unsigned shift = pin * mux_bits % 32;
-	unsigned reg = SG_PINCTRL_BASE + pin * mux_bits / 32 * reg_stride;
+	unsigned long reg = SG_PINCTRL_BASE + pin * mux_bits / 32 * reg_stride;
 	u32 mask = (1U << mux_bits) - 1;
 	u32 tmp;
 
 	tmp = readl(reg);
 	tmp &= ~(mask << shift);
 	tmp |= (mask & muxval) << shift;
+	writel(tmp, reg);
+}
+
+static inline void sg_set_iectrl(unsigned pin)
+{
+	unsigned bit = pin % 32;
+	unsigned long reg = SG_IECTRL + pin / 32 * 4;
+	u32 tmp;
+
+	tmp = readl(reg);
+	tmp |= 1 << bit;
 	writel(tmp, reg);
 }
 

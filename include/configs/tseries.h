@@ -42,9 +42,7 @@
 #define CONFIG_POWER_TPS65217
 
 /* Support both device trees and ATAGs. */
-#define CONFIG_OF_LIBFDT
 #define CONFIG_USE_FDT			/* use fdt within board code */
-#define CONFIG_OF_BOARD_SETUP
 #define CONFIG_CMDLINE_TAG
 #define CONFIG_SETUP_MEMORY_TAGS
 #define CONFIG_INITRD_TAG
@@ -251,8 +249,6 @@ MMCARGS
 #define CONFIG_ARCH_MISC_INIT
 #define CONFIG_USB_MUSB_PIO_ONLY
 #define CONFIG_USB_MUSB_DISABLE_BULK_COMBINE_SPLIT
-/* attention! not only for gadget, enables also highspeed in hostmode */
-#define CONFIG_USB_GADGET_DUALSPEED
 #define CONFIG_AM335X_USB0
 #define CONFIG_AM335X_USB0_MODE	MUSB_HOST
 #define CONFIG_AM335X_USB1

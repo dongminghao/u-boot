@@ -61,11 +61,8 @@
  */
 
 #define CONFIG_SYS_TEXT_BASE		0x80100000
-#define CONFIG_SYS_SDRAM_BASE		OMAP34XX_SDRC_CS0
-#define CONFIG_SYS_INIT_RAM_ADDR	0x4020F800
-#define CONFIG_SYS_INIT_RAM_SIZE	0x800
-#define CONFIG_SYS_INIT_SP_ADDR		(CONFIG_SYS_INIT_RAM_ADDR + \
-					 CONFIG_SYS_INIT_RAM_SIZE - \
+#define CONFIG_SYS_SDRAM_BASE		0x80000000
+#define CONFIG_SYS_INIT_SP_ADDR		(NON_SECURE_SRAM_END - \
 					 GENERATED_GBL_DATA_SIZE)
 
 #define CONFIG_SYS_MALLOC_LEN		(1024 * 1024 + CONFIG_ENV_SIZE)
@@ -103,8 +100,8 @@
  * MMC
  */
 
-#define CONFIG_GENERIC_MMC
 #define CONFIG_MMC
+#define CONFIG_GENERIC_MMC
 #define CONFIG_OMAP_HSMMC
 
 #define CONFIG_CMD_MMC
@@ -183,7 +180,6 @@
  * Serial
  */
 
-
 #ifdef CONFIG_SPL_BUILD
 #define CONFIG_SYS_NS16550_SERIAL
 #define CONFIG_SYS_NS16550_REG_SIZE	(-4)
@@ -192,7 +188,6 @@
 #define CONFIG_SYS_NS16550_CLK		V_NS16550_CLK
 #define CONFIG_SYS_NS16550_COM3		OMAP34XX_UART3
 #define CONFIG_CONS_INDEX		3
-#define CONFIG_SERIAL3			3
 
 #define CONFIG_BAUDRATE			115200
 #define CONFIG_SYS_BAUDRATE_TABLE	{ 4800, 9600, 19200, 38400, 57600, \
@@ -205,20 +200,6 @@
 #define CONFIG_USB_MUSB_PIO_ONLY
 #define CONFIG_USB_MUSB_OMAP2PLUS
 #define CONFIG_TWL4030_USB
-
-#define CONFIG_USB_GADGET
-#define CONFIG_USB_GADGET_DUALSPEED
-#define CONFIG_USB_GADGET_VBUS_DRAW	0
-
-/*
- * Download
- */
-
-#define CONFIG_USB_GADGET_DOWNLOAD
-
-#define CONFIG_G_DNL_VENDOR_NUM		0x0451
-#define CONFIG_G_DNL_PRODUCT_NUM	0xd022
-#define CONFIG_G_DNL_MANUFACTURER	"Texas Instruments"
 
 /*
  * Fastboot
@@ -257,7 +238,7 @@
 	"recovery_mmc_part=4\0" \
 	"fdtfile=omap3-sniper.dtb\0" \
 	"bootfile=/boot/extlinux/extlinux.conf\0" \
-	"bootargs=console=ttyO2 vram=5M,0x9FA00000 omapfb.vram=0:5M\0"
+	"bootargs=console=ttyO2,115200 vram=5M,0x9FA00000 omapfb.vram=0:5M\0"
 
 /*
  * ATAGs

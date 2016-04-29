@@ -51,6 +51,7 @@
 #define CONFIG_SYS_I2C
 #define CONFIG_SYS_I2C_MVTWSI
 #define CONFIG_I2C_MVTWSI_BASE0		MVEBU_TWSI_BASE
+#define CONFIG_I2C_MVTWSI_BASE1		MVEBU_TWSI1_BASE
 #define CONFIG_SYS_I2C_SLAVE		0x0
 #define CONFIG_SYS_I2C_SPEED		100000
 
@@ -77,7 +78,6 @@
 #define CONFIG_SYS_CONSOLE_INFO_QUIET	/* don't print console @ startup */
 #define CONFIG_SYS_ALT_MEMTEST
 #define CONFIG_PREBOOT
-#define CONFIG_FIT
 
 #define CONFIG_SYS_HUSH_PARSER			/* Use the HUSH parser	*/
 #define	CONFIG_SYS_PROMPT_HUSH_PS2	"> "
@@ -104,6 +104,7 @@
 #define CONFIG_PCI
 #define CONFIG_PCI_MVEBU
 #define CONFIG_PCI_PNP
+#define CONFIG_BOARD_LATE_INIT		/* for PEX switch test */
 #endif
 #endif
 
@@ -114,6 +115,19 @@
 #define CONFIG_CFB_CONSOLE
 #define CONFIG_VGA_AS_SINGLE_DEVICE
 #define CONFIG_CMD_BMP
+
+/* FPGA programming support */
+#define CONFIG_FPGA
+#define CONFIG_FPGA_ALTERA
+#define CONFIG_FPGA_STRATIX_V
+
+/*
+ * Bootcounter
+ */
+#define CONFIG_BOOTCOUNT_LIMIT
+#define CONFIG_BOOTCOUNT_RAM
+/* Max size of RAM minus BOOTCOUNT_ADDR is the bootcounter address */
+#define BOOTCOUNT_ADDR			0x1000
 
 /*
  * mv-common.h should be defined after CMD configs since it used them

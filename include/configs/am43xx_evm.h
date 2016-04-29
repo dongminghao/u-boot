@@ -105,8 +105,10 @@
 /* SPL USB Support */
 #ifdef CONFIG_SPL_USB_HOST_SUPPORT
 #define CONFIG_SPL_USB_SUPPORT
-#define CONFIG_SYS_USB_FAT_BOOT_PARTITION		1
+#endif
 
+#if defined(CONFIG_SPL_USB_HOST_SUPPORT) || !defined(CONFIG_SPL_BUILD)
+#define CONFIG_SYS_USB_FAT_BOOT_PARTITION		1
 #define CONFIG_CMD_USB
 #define CONFIG_USB_HOST
 #define CONFIG_USB_XHCI
@@ -119,21 +121,18 @@
 #define CONFIG_AM437X_USB2PHY2_HOST
 #endif
 
-/* USB GADGET */
-#if !defined(CONFIG_SPL_BUILD) || \
-	(defined(CONFIG_SPL_BUILD) && defined(CONFIG_SPL_USBETH_SUPPORT))
-#define CONFIG_USB_DWC3_PHY_OMAP
-#define CONFIG_USB_DWC3_OMAP
-#define CONFIG_USB_DWC3
-#define CONFIG_USB_DWC3_GADGET
+#if defined(CONFIG_SPL_BUILD) && !defined(CONFIG_SPL_USBETH_SUPPORT)
+#undef CONFIG_USB_DWC3_PHY_OMAP
+#undef CONFIG_USB_DWC3_OMAP
+#undef CONFIG_USB_DWC3
+#undef CONFIG_USB_DWC3_GADGET
 
-#define CONFIG_USB_GADGET
-#define CONFIG_USB_GADGET_DOWNLOAD
-#define CONFIG_USB_GADGET_VBUS_DRAW 2
-#define CONFIG_G_DNL_MANUFACTURER "Texas Instruments"
-#define CONFIG_G_DNL_VENDOR_NUM 0x0403
-#define CONFIG_G_DNL_PRODUCT_NUM 0xBD00
-#define CONFIG_USB_GADGET_DUALSPEED
+#undef CONFIG_USB_GADGET_DOWNLOAD
+#undef CONFIG_USB_GADGET_VBUS_DRAW
+#undef CONFIG_G_DNL_MANUFACTURER
+#undef CONFIG_G_DNL_VENDOR_NUM
+#undef CONFIG_G_DNL_PRODUCT_NUM
+#undef CONFIG_USB_GADGET_DUALSPEED
 #endif
 
 /*
@@ -257,10 +256,6 @@
 		"${optargs} " \
 		"root=${usbroot} " \
 		"rootfstype=${usbrootfstype}\0" \
-	"bootenv=uEnv.txt\0" \
-	"loadbootenv=load ${devtype} ${devnum} ${loadaddr} ${bootenv}\0" \
-	"importbootenv=echo Importing environment from mmc ...; " \
-		"env import -t $loadaddr $filesize\0" \
 	"ramargs=setenv bootargs console=${console} " \
 		"${optargs} " \
 		"root=${ramroot} " \
@@ -273,14 +268,6 @@
 		"setenv devtype mmc; " \
 		"if mmc rescan; then " \
 			"echo SD/MMC found on device ${devnum};" \
-			"if run loadbootenv; then " \
-				"echo Loaded environment from ${bootenv};" \
-				"run importbootenv;" \
-			"fi;" \
-			"if test -n $uenvcmd; then " \
-				"echo Running uenvcmd ...;" \
-				"run uenvcmd;" \
-			"fi;" \
 			"if run loadimage; then " \
 				"run loadfdt; " \
 				"echo Booting from mmc${mmcdev} ...; " \
@@ -327,6 +314,7 @@
 
 #define CONFIG_BOOTCOMMAND \
 	"run findfdt; " \
+	"run envboot;" \
 	"run mmcboot;" \
 	"run usbboot;" \
 	NANDBOOT \

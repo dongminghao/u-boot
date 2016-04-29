@@ -69,7 +69,6 @@
  * Miscellaneous configurable options
  */
 #define CONFIG_BOOTDELAY	5	/* autoboot after 5 seconds	*/
-#define CONFIG_SYS_LONGHELP			/* undef to save memory		*/
 #if defined(CONFIG_CMD_KGDB)
 #define CONFIG_SYS_CBSIZE		1024	/* Console I/O Buffer Size	*/
 #else
@@ -122,11 +121,6 @@
 #define CONFIG_KGDB_BAUDRATE	230400	/* speed to run kgdb serial port*/
 #endif
 
-/*
- * Pass open firmware flat tree
- */
-#define CONFIG_OF_LIBFDT
-#define CONFIG_OF_BOARD_SETUP
 /* Update size in "reg" property of NOR FLASH device tree nodes */
 #define CONFIG_FDT_FIXUP_NOR_FLASH_SIZE
 

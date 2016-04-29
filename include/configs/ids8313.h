@@ -429,10 +429,6 @@
 #define CONFIG_BOOTP_HOSTNAME
 #define CONFIG_BOOTP_BOOTPATH
 #define CONFIG_BOOTP_BOOTFILESIZE
-/* pass open firmware flat tree */
-#define CONFIG_OF_LIBFDT
-#define CONFIG_OF_BOARD_SETUP
-#define CONFIG_OF_STDOUT_VIA_ALIAS
 
 /*
  * The reserved memory
@@ -563,7 +559,6 @@
 #define CONFIG_VERSION_VARIABLE
 
 #define CONFIG_IMAGE_FORMAT_LEGACY
-#define CONFIG_CMD_FDT
 #define CONFIG_CMD_HASH
 #define CONFIG_SHA1
 #define CONFIG_SHA256

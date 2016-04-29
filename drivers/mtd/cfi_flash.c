@@ -52,7 +52,10 @@
  */
 
 DECLARE_GLOBAL_DATA_PTR;
-
+/*
+#define _DEBUG  1
+#define DEBUG  1
+*/
 static uint flash_offset_cfi[2] = { FLASH_OFFSET_CFI, FLASH_OFFSET_CFI_ALT };
 #ifdef CONFIG_FLASH_CFI_MTD
 static uint flash_verbose = 1;
@@ -979,7 +982,7 @@ static int flash_write_cfibuffer (flash_info_t * info, ulong dest, uchar * cp,
 
 	case CFI_CMDSET_AMD_STANDARD:
 	case CFI_CMDSET_AMD_EXTENDED:
-		flash_unlock_seq(info,0);
+		flash_unlock_seq(info, sector);
 
 #ifdef CONFIG_FLASH_SPANSION_S29WS_N
 		offset = ((unsigned long)dst - info->start[sector]) >> shift;
@@ -2203,6 +2206,8 @@ ulong flash_get_size (phys_addr_t base, int banknum)
 						flash_isset (info, sect_cnt,
 							     FLASH_OFFSET_PROTECT,
 							     FLASH_STATUS_PROTECT);
+					flash_write_cmd(info, sect_cnt, 0,
+							FLASH_CMD_RESET);
 					break;
 				case CFI_CMDSET_AMD_EXTENDED:
 				case CFI_CMDSET_AMD_STANDARD:

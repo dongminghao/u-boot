@@ -92,11 +92,6 @@
 #define CONFIG_BOOTP_GATEWAY
 #define CONFIG_BOOTP_HOSTNAME
 
-/*
- * Handover flattened device tree (dtb file) to Linux kernel
- */
-#define CONFIG_OF_LIBFDT	1
-
 /*-----------------------------------------------------------------------
  * SDHC Configuration
  */
@@ -104,6 +99,12 @@
 #define CONFIG_MMC
 #define CONFIG_GENERIC_MMC
 #define CONFIG_CMD_MMC
+
+/*--------------------------------------------------
+ * USB Configuration
+ */
+#define CONFIG_USB_MUSB_PIO_ONLY
+#define CONFIG_SYS_CACHELINE_SIZE	16
 
 /*-----------------------------------------------------------------------
  * File System Configuration
@@ -153,6 +154,7 @@
 
 #define BOOT_TARGET_DEVICES(func)	\
 	func(MMC, mmc, 0)		\
+	func(USB, usb, 0)		\
 	func(DHCP, dhcp, na)
 
 #include <config_distro_bootcmd.h>

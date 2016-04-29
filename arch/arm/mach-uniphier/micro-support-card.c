@@ -25,12 +25,12 @@
  */
 void support_card_reset_deassert(void)
 {
-	writel(0, MICRO_SUPPORT_CARD_RESET);
+	writel(0x00010000, MICRO_SUPPORT_CARD_RESET);
 }
 
 void support_card_reset(void)
 {
-	writel(3, MICRO_SUPPORT_CARD_RESET);
+	writel(0x00020003, MICRO_SUPPORT_CARD_RESET);
 }
 
 static int support_card_show_revision(void)
@@ -142,7 +142,8 @@ static void detect_num_flash_banks(void)
 								memory_bank;
 
 			debug("flash bank found: base = 0x%lx, size = 0x%lx\n",
-			      memory_bank->base, memory_bank->size);
+			      (unsigned long)memory_bank->base,
+			      (unsigned long)memory_bank->size);
 			cfi_flash_num_flash_banks++;
 		}
 	}

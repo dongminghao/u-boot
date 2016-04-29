@@ -12,17 +12,6 @@
 #define CONFIG_I2C_EEPROM
 #define CONFIG_SYS_EEPROM_PAGE_WRITE_DELAY_MS  10
 
-#ifdef CONFIG_SYS_NS16550_SERIAL
-#define CONFIG_SYS_NS16550_COM1		CONFIG_SUPPORT_CARD_UART_BASE
-#define CONFIG_SYS_NS16550_CLK		12288000
-#define CONFIG_SYS_NS16550_REG_SIZE	-2
-#endif
-
-/* TODO: move to Kconfig and device tree */
-#if 0
-#define CONFIG_SYS_NS16550_SERIAL
-#endif
-
 #define CONFIG_SMC911X
 
 /* dummy: referenced by examples/standalone/smc911x_eeprom.c */
@@ -39,7 +28,7 @@
 
 #define CONFIG_SYS_CACHELINE_SIZE	32
 
-/* Comment out the following to enable L2 cache */
+/* Comment out the following to disable L2 cache */
 #define CONFIG_UNIPHIER_L2CACHE_ON
 
 #define CONFIG_DISPLAY_CPUINFO
@@ -66,6 +55,7 @@
 
 #define CONFIG_SYS_MAX_FLASH_SECT	256
 #define CONFIG_SYS_MONITOR_BASE		0
+#define CONFIG_SYS_MONITOR_LEN		0x00080000	/* 512KB */
 #define CONFIG_SYS_FLASH_BASE		0
 
 /*
@@ -99,26 +89,18 @@
 
 #define CONFIG_CONS_INDEX		1
 
-/*
- * For NAND booting the environment is embedded in the U-Boot image. Please take
- * look at the file board/amcc/canyonlands/u-boot-nand.lds for details.
- */
+/* #define CONFIG_ENV_IS_NOWHERE */
 /* #define CONFIG_ENV_IS_IN_NAND */
-#define CONFIG_ENV_IS_NOWHERE
+#define CONFIG_ENV_IS_IN_MMC
+#define CONFIG_ENV_OFFSET			0x80000
 #define CONFIG_ENV_SIZE				0x2000
-#define CONFIG_ENV_OFFSET			0x0
 /* #define CONFIG_ENV_OFFSET_REDUND	(CONFIG_ENV_OFFSET + CONFIG_ENV_SIZE) */
+
+#define CONFIG_SYS_MMC_ENV_DEV		0
+#define CONFIG_SYS_MMC_ENV_PART		1
 
 /* Time clock 1MHz */
 #define CONFIG_SYS_TIMER_RATE			1000000
-
-/*
- * By default, ARP timeout is 5 sec.
- * The first ARP request does not seem to work.
- * So we need to retry ARP request anyway.
- * We want to shrink the interval until the second ARP request.
- */
-#define CONFIG_ARP_TIMEOUT	500UL  /* 0.5 msec */
 
 #define CONFIG_SYS_MAX_NAND_DEVICE			1
 #define CONFIG_SYS_NAND_MAX_CHIPS			2
@@ -126,7 +108,7 @@
 
 #define CONFIG_NAND_DENALI_ECC_SIZE			1024
 
-#ifdef CONFIG_ARCH_UNIPHIER_PH1_SLD3
+#ifdef CONFIG_ARCH_UNIPHIER_SLD3
 #define CONFIG_SYS_NAND_REGS_BASE			0xf8100000
 #define CONFIG_SYS_NAND_DATA_BASE			0xf8000000
 #else
@@ -145,6 +127,11 @@
 #define CONFIG_CMD_FAT
 #define CONFIG_FAT_WRITE
 #define CONFIG_DOS_PARTITION
+
+/* SD/MMC */
+#define CONFIG_CMD_MMC
+#define CONFIG_SUPPORT_EMMC_BOOT
+#define CONFIG_GENERIC_MMC
 
 /* memtest works on */
 #define CONFIG_SYS_MEMTEST_START	CONFIG_SYS_SDRAM_BASE
@@ -228,24 +215,31 @@
 	"netdev=eth0\0"						\
 	"verify=n\0"						\
 	"nor_base=0x42000000\0"					\
+	"sramupdate=setexpr tmp_addr $nor_base + 0x50000 &&"	\
+		"tftpboot $tmp_addr u-boot-spl.bin &&"		\
+		"setexpr tmp_addr $nor_base + 0x60000 &&"	\
+		"tftpboot $tmp_addr u-boot.bin\0"		\
+	"emmcupdate=mmcsetn &&"					\
+		"mmc partconf $mmc_first_dev 0 1 1 &&"		\
+		"mmc erase 0 800 &&"				\
+		"tftpboot u-boot-spl.bin &&"			\
+		"mmc write $loadaddr 0 80 &&"			\
+		"tftpboot u-boot.bin &&"			\
+		"mmc write $loadaddr 80 780\0"			\
 	"nandupdate=nand erase 0 0x00100000 &&"			\
 		"tftpboot u-boot-spl.bin &&"			\
 		"nand write $loadaddr 0 0x00010000 &&"		\
-		"tftpboot u-boot.img &&"			\
+		"tftpboot u-boot.bin &&"			\
 		"nand write $loadaddr 0x00010000 0x000f0000\0"	\
 	LINUXBOOT_ENV_SETTINGS
 
 #define CONFIG_SYS_BOOTMAPSZ			0x20000000
 
-/* Open Firmware flat tree */
-#define CONFIG_OF_LIBFDT
-
 #define CONFIG_SYS_SDRAM_BASE		0x80000000
 #define CONFIG_NR_DRAM_BANKS		2
 
-#if defined(CONFIG_ARCH_UNIPHIER_PH1_SLD3) || \
-	defined(CONFIG_ARCH_UNIPHIER_PH1_LD4) || \
-	defined(CONFIG_ARCH_UNIPHIER_PH1_SLD8)
+#if defined(CONFIG_ARCH_UNIPHIER_SLD3) || defined(CONFIG_ARCH_UNIPHIER_LD4) || \
+	defined(CONFIG_ARCH_UNIPHIER_SLD8)
 #define CONFIG_SPL_TEXT_BASE		0x00040000
 #else
 #define CONFIG_SPL_TEXT_BASE		0x00100000
@@ -258,7 +252,9 @@
 
 #define CONFIG_SPL_FRAMEWORK
 #define CONFIG_SPL_SERIAL_SUPPORT
+#define CONFIG_SPL_NOR_SUPPORT
 #define CONFIG_SPL_NAND_SUPPORT
+#define CONFIG_SPL_MMC_SUPPORT
 
 #define CONFIG_SPL_LIBCOMMON_SUPPORT	/* for mem_malloc_init */
 #define CONFIG_SPL_LIBGENERIC_SUPPORT
@@ -267,6 +263,12 @@
 
 #define CONFIG_SYS_NAND_U_BOOT_OFFS		0x10000
 
+/* subtract sizeof(struct image_header) */
+#define CONFIG_SYS_UBOOT_BASE			(0x60000 - 0x40)
+#define CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_SECTOR	0x80
+
+#define CONFIG_SPL_TARGET			"u-boot-with-spl.bin"
 #define CONFIG_SPL_MAX_FOOTPRINT		0x10000
+#define CONFIG_SPL_MAX_SIZE			0x10000
 
 #endif /* __CONFIG_UNIPHIER_COMMON_H__ */

@@ -1,0 +1,7 @@
+usb_kbd.c:355:12:usb_kbd_testc	8	static
+usb_kbd.c:381:12:usb_kbd_getc	8	static
+usb_kbd.c:167:12:usb_kbd_translate.part.0	8	static
+usb_kbd.c:301:12:usb_kbd_irq	184	static
+usb_kbd.c:29:5:overwrite_console	0	static
+usb_kbd.c:542:5:drv_usb_kbd_init	112	static
+usb_kbd.c:571:5:usb_kbd_deregister	0	static

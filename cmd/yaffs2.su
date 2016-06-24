@@ -1,0 +1,14 @@
+yaffs2.c:57:5:do_ydevls	8	static
+yaffs2.c:65:5:do_ydevconfig	24	static
+yaffs2.c:88:5:do_ymount	8	static
+yaffs2.c:105:5:do_yumount	8	static
+yaffs2.c:121:5:do_yls	16	static
+yaffs2.c:137:5:do_yrd	8	static
+yaffs2.c:156:5:do_ywr	16	static
+yaffs2.c:180:5:do_yrdm	8	static
+yaffs2.c:198:5:do_ywrm	16	static
+yaffs2.c:218:5:do_ymkdir	8	static
+yaffs2.c:233:5:do_yrmdir	8	static
+yaffs2.c:248:5:do_yrm	8	static
+yaffs2.c:264:5:do_ymv	8	static
+yaffs2.c:46:5:do_ytrace	8	static

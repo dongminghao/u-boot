@@ -1,0 +1,3 @@
+bzlib_huffman.c:104:6:BZ2_hbMakeCodeLengths	5216	static
+bzlib_huffman.c:176:6:BZ2_hbAssignCodes	12	static
+bzlib_huffman.c:194:6:BZ2_hbCreateDecodeTables	24	static

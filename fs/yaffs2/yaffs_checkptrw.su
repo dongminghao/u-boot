@@ -1,0 +1,8 @@
+yaffs_checkptrw.c:27:12:yaffs_checkpt_erase	24	static
+yaffs_checkptrw.c:202:12:yaffs2_checkpt_flush_buffer	96	static
+yaffs_checkptrw.c:138:5:yaffs2_checkpt_open	24	static
+yaffs_checkptrw.c:193:5:yaffs2_get_checkpt_sum	0	static
+yaffs_checkptrw.c:257:5:yaffs2_checkpt_wr	24	static
+yaffs_checkptrw.c:287:5:yaffs2_checkpt_rd	192	static
+yaffs_checkptrw.c:358:5:yaffs_checkpt_close	8	static
+yaffs_checkptrw.c:399:5:yaffs2_checkpt_invalidate_stream	8	static

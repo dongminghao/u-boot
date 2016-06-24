@@ -1,0 +1,6 @@
+yaffs_packedtags2.c:40:13:yaffs_dump_packed_tags2_tags_only	16	static
+yaffs_packedtags2.c:53:13:yaffs_dump_tags2	32	static
+yaffs_packedtags2.c:75:6:yaffs_pack_tags2_tags_only	16	static
+yaffs_packedtags2.c:111:6:yaffs_pack_tags2	16	static
+yaffs_packedtags2.c:122:6:yaffs_unpack_tags2_tags_only	16	static
+yaffs_packedtags2.c:160:6:yaffs_unpack_tags2	32	static

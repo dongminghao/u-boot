@@ -1,0 +1,7 @@
+yaffs_bitmap.c:32:6:yaffs_verify_chunk_bit_id	8	static
+yaffs_bitmap.c:43:6:yaffs_clear_chunk_bits	8	static
+yaffs_bitmap.c:50:6:yaffs_clear_chunk_bit	24	static
+yaffs_bitmap.c:58:6:yaffs_set_chunk_bit	24	static
+yaffs_bitmap.c:66:5:yaffs_check_chunk_bit	24	static
+yaffs_bitmap.c:74:5:yaffs_still_some_chunks	8	static
+yaffs_bitmap.c:87:5:yaffs_count_chunk_bits	8	static

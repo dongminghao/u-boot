@@ -1,0 +1,6 @@
+yaffs_summary.c:64:6:yaffs_summary_deinit	16	static
+yaffs_summary.c:73:5:yaffs_summary_init	16	static
+yaffs_summary.c:178:5:yaffs_summary_read	152	static
+yaffs_summary.c:246:5:yaffs_summary_add	160	static
+yaffs_summary.c:275:5:yaffs_summary_fetch	24	static
+yaffs_summary.c:292:6:yaffs_summary_gc	24	static

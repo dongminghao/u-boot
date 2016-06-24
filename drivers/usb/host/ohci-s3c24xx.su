@@ -1,0 +1,13 @@
+ohci-s3c24xx.c:86:12:roothub_a	0	static
+ohci-s3c24xx.c:98:12:roothub_portstatus	0	static
+ohci-s3c24xx.c:1343:12:hc_reset.isra.3	16	static
+ohci-s3c24xx.c:116:13:urb_free_priv.constprop	0	static
+ohci-s3c24xx.c:615:13:td_fill.isra.1.constprop	16	static
+ohci-s3c24xx.c:358:5:sohci_submit_job	48	static
+ohci-s3c24xx.c:903:5:rh_check_port_status	24	static
+ohci-s3c24xx.c:1175:5:submit_common_msg	56	static
+ohci-s3c24xx.c:1295:5:submit_bulk_msg	16	static
+ohci-s3c24xx.c:1302:5:submit_control_msg	64	static
+ohci-s3c24xx.c:1330:5:submit_int_msg	0	static
+ohci-s3c24xx.c:1549:5:usb_lowlevel_init	16	static
+ohci-s3c24xx.c:1628:5:usb_lowlevel_stop	8	static

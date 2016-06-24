@@ -1,0 +1,2 @@
+yaffs_packedtags1.c:25:6:yaffs_pack_tags1	0	static
+yaffs_packedtags1.c:38:6:yaffs_unpack_tags1	16	static

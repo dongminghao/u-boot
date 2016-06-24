@@ -1,0 +1,15 @@
+yaffs_verify.c:20:5:yaffs_skip_verification	0	static
+yaffs_verify.c:49:6:yaffs_verify_blk	24	static
+yaffs_verify.c:93:6:yaffs_verify_collected_blk	16	static
+yaffs_verify.c:108:6:yaffs_verify_blocks	64	static
+yaffs_verify.c:165:6:yaffs_verify_oh	24	static
+yaffs_verify.c:220:6:yaffs_verify_file	120	static
+yaffs_verify.c:282:6:yaffs_verify_link	0	static
+yaffs_verify.c:290:6:yaffs_verify_symlink	0	static
+yaffs_verify.c:298:6:yaffs_verify_special	0	static
+yaffs_verify.c:463:6:yaffs_verify_dir	24	static
+yaffs_verify.c:304:6:yaffs_verify_obj	120	static
+yaffs_verify.c:401:6:yaffs_verify_objects	16	static
+yaffs_verify.c:420:6:yaffs_verify_obj_in_dir	24	static
+yaffs_verify.c:499:6:yaffs_verify_free_chunks	16	static
+yaffs_verify.c:519:5:yaffs_verify_file_sane	0	static

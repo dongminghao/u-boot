@@ -1,0 +1,4 @@
+yaffs_mtdif2.c:40:5:nandmtd2_write_chunk_tags	112	static
+yaffs_mtdif2.c:94:5:nandmtd2_read_chunk_tags	248	static
+yaffs_mtdif2.c:173:5:nandmtd2_MarkNANDBlockBad	16	static
+yaffs_mtdif2.c:193:5:nandmtd2_QueryNANDBlock	104	static

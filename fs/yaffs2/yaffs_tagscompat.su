@@ -1,0 +1,10 @@
+yaffs_tagscompat.c:126:12:yaffs_wr_nand	8	static
+yaffs_tagscompat.c:262:13:yaffs_handle_rd_data_error	8	static
+yaffs_tagscompat.c:140:12:yaffs_rd_chunk_nand.constprop	72	static
+yaffs_tagscompat.c:25:6:yaffs_calc_ecc	16	static
+yaffs_tagscompat.c:31:6:yaffs_calc_tags_ecc	8	static
+yaffs_tagscompat.c:51:5:yaffs_check_tags_ecc	16	static
+yaffs_tagscompat.c:280:5:yaffs_tags_compat_wr	48	static
+yaffs_tagscompat.c:312:5:yaffs_tags_compat_rd	64	static
+yaffs_tagscompat.c:361:5:yaffs_tags_compat_mark_bad	32	static
+yaffs_tagscompat.c:377:5:yaffs_tags_compat_query_block	72	static

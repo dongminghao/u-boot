@@ -1,0 +1,7 @@
+yaffs_attribs.c:17:6:yaffs_load_attribs	0	static
+yaffs_attribs.c:28:6:yaffs_load_attribs_oh	0	static
+yaffs_attribs.c:48:6:yaffs_attribs_init	24	static
+yaffs_attribs.c:64:6:yaffs_load_current_time	16	static
+yaffs_attribs.c:83:8:yaffs_get_file_size	8	static
+yaffs_attribs.c:101:5:yaffs_set_attribs	16	static
+yaffs_attribs.c:128:5:yaffs_get_attribs	8	static

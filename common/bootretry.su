@@ -1,0 +1,4 @@
+bootretry.c:24:6:bootretry_init_cmd_timeout	8	static
+bootretry.c:40:6:bootretry_reset_cmd_timeout	24	static
+bootretry.c:45:5:bootretry_tstc_timeout	8	static
+bootretry.c:56:6:bootretry_dont_retry	0	static

@@ -1,0 +1,4 @@
+yaffs_mtdif.c:62:5:nandmtd_WriteChunkToNAND	80	static
+yaffs_mtdif.c:97:5:nandmtd_ReadChunkFromNAND	88	static
+yaffs_mtdif.c:134:5:nandmtd_EraseBlockInNAND	88	static
+yaffs_mtdif.c:162:5:nandmtd_InitialiseNAND	0	static

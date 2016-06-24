@@ -28,6 +28,7 @@
 	.globl	reset
 
 reset:
+#ifdef CONFIG_SPL_BUILD
 	/*
 	 * set the cpu to SVC32 mode
 	 */
@@ -157,6 +158,7 @@ copyex:
 #ifndef CONFIG_SKIP_LOWLEVEL_INIT
 	bl	cpu_init_crit
 #endif
+#endif /*CONFIG_SPL_BUILD*/
 
 	bl	_main
 

@@ -1,0 +1,9 @@
+bzlib.c:161:6:default_bzfree	0	static
+bzlib.c:154:7:default_bzalloc	0	static
+bzlib.c:543:5:BZ2_bzDecompressInit	16	static
+bzlib.c:725:18:BZ2_indexIntoF	4	static
+bzlib.c:836:5:BZ2_bzDecompress	48	static
+bzlib.c:891:5:BZ2_bzDecompressEnd	16	static
+bzlib.c:1327:5:BZ2_bzBuffToBuffDecompress	72	static
+bzlib.c:1392:14:BZ2_bzlibVersion	0	static
+bzlib.c:1594:6:bz_internal_error	0	static

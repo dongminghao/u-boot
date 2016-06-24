@@ -1,0 +1,5 @@
+smdk2440.c:54:5:board_early_init_f	0	static
+smdk2440.c:97:5:board_init	8	static
+smdk2440.c:111:5:dram_init	0	static
+smdk2440.c:120:5:board_eth_init	0	static
+smdk2440.c:136:7:board_flash_get_legacy	0	static

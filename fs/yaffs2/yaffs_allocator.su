@@ -1,0 +1,6 @@
+yaffs_allocator.c:158:21:yaffs_alloc_raw_tnode	16	static
+yaffs_allocator.c:183:6:yaffs_free_raw_tnode	8	static
+yaffs_allocator.c:287:19:yaffs_alloc_raw_obj	24	static
+yaffs_allocator.c:312:6:yaffs_free_raw_obj	8	static
+yaffs_allocator.c:327:6:yaffs_deinit_raw_tnodes_and_objs	24	static
+yaffs_allocator.c:341:6:yaffs_init_raw_tnodes_and_objs	16	static

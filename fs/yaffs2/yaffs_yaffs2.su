@@ -1,0 +1,17 @@
+yaffs_yaffs2.c:920:12:yaffs2_ybicmp	0	static
+yaffs_yaffs2.c:445:12:yaffs2_checkpt_tnode_worker	32	static
+yaffs_yaffs2.c:251:12:yaffs2_wr_checkpt_validity_marker	32	static
+yaffs_yaffs2.c:265:12:yaffs2_rd_checkpt_validity_marker	24	static
+yaffs_yaffs2.c:42:6:yaffs_calc_oldest_dirty_seq	12	static
+yaffs_yaffs2.c:72:6:yaffs2_find_oldest_dirty_seq	0	static
+yaffs_yaffs2.c:87:6:yaffs2_clear_oldest_dirty_seq	0	static
+yaffs_yaffs2.c:105:6:yaffs2_update_oldest_dirty_seq	0	static
+yaffs_yaffs2.c:119:5:yaffs_block_ok_for_gc	16	static
+yaffs_yaffs2.c:141:5:yaffs2_find_refresh_block	8	static
+yaffs_yaffs2.c:195:5:yaffs2_checkpt_required	0	static
+yaffs_yaffs2.c:208:5:yaffs_calc_checkpt_blocks_required	8	static
+yaffs_yaffs2.c:776:6:yaffs2_checkpt_invalidate	8	static
+yaffs_yaffs2.c:786:5:yaffs_checkpoint_save	96	static
+yaffs_yaffs2.c:808:5:yaffs2_checkpt_restore	96	static
+yaffs_yaffs2.c:831:5:yaffs2_handle_hole	56	static
+yaffs_yaffs2.c:1339:5:yaffs2_scan_backwards	184	static

@@ -1,0 +1,7 @@
+yaffs_nameval.c:57:12:nval_used	32	static
+yaffs_nameval.c:32:12:nval_find	40	static
+yaffs_nameval.c:73:5:nval_del	32	static
+yaffs_nameval.c:89:5:nval_set	40	static
+yaffs_nameval.c:129:5:nval_get	32	static
+yaffs_nameval.c:167:5:nval_list	48	static
+yaffs_nameval.c:205:5:nval_hasvalues	8	static

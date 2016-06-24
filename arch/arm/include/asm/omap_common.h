@@ -145,6 +145,7 @@ struct prcm_regs {
 	u32 cm_ssc_modfreqdiv_dpll_unipro;
 	u32 cm_coreaon_usb_phy1_core_clkctrl;
 	u32 cm_coreaon_usb_phy2_core_clkctrl;
+	u32 cm_coreaon_usb_phy3_core_clkctrl;
 	u32 cm_coreaon_l3init_60m_gfclk_clkctrl;
 
 	/* cm2.core */
@@ -234,6 +235,7 @@ struct prcm_regs {
 	u32 cm_l3init_usb_otg_ss1_clkctrl;
 	u32 cm_l3init_usb_otg_ss2_clkctrl;
 
+	u32 prm_irqstatus_mpu;
 	u32 prm_irqstatus_mpu_2;
 
 	/* cm2.l4per */
@@ -321,6 +323,14 @@ struct prcm_regs {
 	u32 prm_vc_cfg_i2c_clk;
 	u32 prm_abbldo_mpu_setup;
 	u32 prm_abbldo_mpu_ctrl;
+	u32 prm_abbldo_mm_setup;
+	u32 prm_abbldo_mm_ctrl;
+	u32 prm_abbldo_iva_setup;
+	u32 prm_abbldo_iva_ctrl;
+	u32 prm_abbldo_eve_setup;
+	u32 prm_abbldo_eve_ctrl;
+	u32 prm_abbldo_gpu_setup;
+	u32 prm_abbldo_gpu_ctrl;
 
 	u32 cm_div_m4_dpll_core;
 	u32 cm_div_m5_dpll_core;
@@ -363,7 +373,6 @@ struct omap_sys_ctrl_regs {
 	u32 control_core_mac_id_0_hi;
 	u32 control_core_mac_id_1_lo;
 	u32 control_core_mac_id_1_hi;
-	u32 control_std_fuse_opp_vdd_mpu_2;
 	u32 control_phy_power_usb;
 	u32 control_core_mmr_lock1;
 	u32 control_core_mmr_lock2;
@@ -442,6 +451,10 @@ struct omap_sys_ctrl_regs {
 	u32 control_emif1_sdram_config_ext;
 	u32 control_emif2_sdram_config_ext;
 	u32 control_wkup_ldovbb_mpu_voltage_ctrl;
+	u32 control_wkup_ldovbb_mm_voltage_ctrl;
+	u32 control_wkup_ldovbb_iva_voltage_ctrl;
+	u32 control_wkup_ldovbb_eve_voltage_ctrl;
+	u32 control_wkup_ldovbb_gpu_voltage_ctrl;
 	u32 control_smart1nopmio_padconf_0;
 	u32 control_smart1nopmio_padconf_1;
 	u32 control_padconf_mode;
@@ -541,6 +554,8 @@ struct volts {
 	u32 addr;
 	struct volts_efuse_data efuse;
 	struct pmic_data *pmic;
+
+	u32 abb_tx_done_mask;
 };
 
 struct vcores_data {
@@ -701,6 +716,17 @@ static inline u8 is_dra72x(void)
 #define DRA752_ES2_0	0x07520200
 #define DRA722_ES1_0	0x07220100
 #define DRA722_ES2_0	0x07220200
+
+/*
+ * silicon device type
+ * Moving to common from cpu.h, since it is shared by various omap devices
+ */
+#define DEVICE_MASK         (BIT(8) | BIT(9) | BIT(10))
+#define TST_DEVICE          0x0
+#define EMU_DEVICE          0x1
+#define HS_DEVICE           0x2
+#define GP_DEVICE           0x3
+
 
 /*
  * SRAM scratch space entries

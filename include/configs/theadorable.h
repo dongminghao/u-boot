@@ -23,16 +23,8 @@
 /*
  * Commands configuration
  */
-#define CONFIG_CMD_BOOTZ
-#define CONFIG_CMD_CACHE
 #define CONFIG_CMD_ENV
-#define CONFIG_CMD_EXT2
-#define CONFIG_CMD_EXT4
-#define CONFIG_CMD_FAT
-#define CONFIG_CMD_FS_GENERIC
-#define CONFIG_CMD_I2C
 #define CONFIG_CMD_SATA
-#define CONFIG_CMD_TIME
 
 /*
  * The debugging version enables USB support via defconfig.
@@ -40,11 +32,7 @@
  * interfaces / features.
  */
 #ifdef CONFIG_USB
-#define CONFIG_CMD_DHCP
 #define CONFIG_CMD_PCI
-#define CONFIG_CMD_PING
-#define CONFIG_CMD_SPI
-#define CONFIG_CMD_TFTPPUT
 #endif
 
 /* I2C */
@@ -76,11 +64,9 @@
 #define PHY_ANEG_TIMEOUT	8000	/* PHY needs a longer aneg time */
 
 #define CONFIG_SYS_CONSOLE_INFO_QUIET	/* don't print console @ startup */
+#define CONFIG_ZERO_BOOTDELAY_CHECK	/* check for keypress on bootdelay==0 */
 #define CONFIG_SYS_ALT_MEMTEST
 #define CONFIG_PREBOOT
-
-#define CONFIG_SYS_HUSH_PARSER			/* Use the HUSH parser	*/
-#define	CONFIG_SYS_PROMPT_HUSH_PS2	"> "
 
 /* Keep device tree and initrd in lower memory so the kernel can access them */
 #define CONFIG_EXTRA_ENV_SETTINGS	\

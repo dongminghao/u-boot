@@ -41,6 +41,7 @@ struct cpu_type {
 	{ .name = #n, .soc_ver = SVR_##v, .num_cores = (nc)}
 
 #define SVR_WO_E		0xFFFFFE
+#define SVR_LS1012		0x870400
 #define SVR_LS1043		0x879200
 #define SVR_LS1023		0x879208
 #define SVR_LS2045		0x870120
@@ -52,6 +53,8 @@ struct cpu_type {
 #define SVR_MIN(svr)		(((svr) >> 0) & 0xf)
 #define SVR_SOC_VER(svr)	(((svr) >> 8) & SVR_WO_E)
 #define IS_E_PROCESSOR(svr)	(!((svr >> 8) & 0x1))
+#define IS_SVR_REV(svr, maj, min) \
+		((SVR_MAJ(svr) == (maj)) && (SVR_MIN(svr) == (min)))
 
 /* ahci port register default value */
 #define AHCI_PORT_PHY_1_CFG    0xa003fffe

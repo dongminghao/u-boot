@@ -9,18 +9,17 @@
 #ifndef __WARP7_CONFIG_H
 #define __WARP7_CONFIG_H
 
-#define CONFIG_BOOTDELAY                1
 #include "mx7_common.h"
 
 #define PHYS_SDRAM_SIZE			SZ_512M
 
 #define CONFIG_MXC_UART_BASE		UART1_IPS_BASE_ADDR
 
-
 /* Size of malloc() pool */
-#define CONFIG_SYS_MALLOC_LEN		(32 * SZ_1M)
+#define CONFIG_SYS_MALLOC_LEN		(35 * SZ_1M)
 
 #define CONFIG_BOARD_EARLY_INIT_F
+#define CONFIG_BOARD_LATE_INIT
 
 /* MMC Config*/
 #define CONFIG_SYS_FSL_ESDHC_ADDR       USDHC3_BASE_ADDR
@@ -29,10 +28,7 @@
 #define CONFIG_SYS_MMC_IMG_LOAD_PART	1
 
 #define CONFIG_DFU_ENV_SETTINGS \
-	"dfu_alt_info=image raw 0 0x800000;"\
-		"u-boot raw 0 0x4000;"\
-		"bootimg part 0 1;"\
-		"rootfs part 0 2\0" \
+	"dfu_alt_info=boot raw 0x2 0x400 mmcpart 1\0" \
 
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	CONFIG_DFU_ENV_SETTINGS \
@@ -84,7 +80,6 @@
 		   "fi; " \
 	   "fi"
 
-#define CONFIG_CMD_MEMTEST
 #define CONFIG_SYS_MEMTEST_START	0x80000000
 #define CONFIG_SYS_MEMTEST_END		(CONFIG_SYS_MEMTEST_START + 0x20000000)
 
@@ -119,7 +114,6 @@
 #define CONFIG_MMCROOT			"/dev/mmcblk2p2"
 
 /* USB Configs */
-#define CONFIG_CMD_USB
 #define CONFIG_USB_EHCI
 #define CONFIG_USB_EHCI_MX7
 #define CONFIG_USB_STORAGE
@@ -136,7 +130,6 @@
 #define CONFIG_USB_GADGET_DUALSPEED
 
 #define CONFIG_USB_GADGET
-#define CONFIG_CMD_USB_MASS_STORAGE
 #define CONFIG_USB_FUNCTION_MASS_STORAGE
 #define CONFIG_USB_GADGET_DOWNLOAD
 #define CONFIG_USB_GADGET_VBUS_DRAW	2
@@ -146,7 +139,6 @@
 #define CONFIG_G_DNL_MANUFACTURER	"FSL"
 
 /* USB Device Firmware Update support */
-#define CONFIG_CMD_DFU
 #define CONFIG_USB_FUNCTION_DFU
 #define CONFIG_DFU_MMC
 #define CONFIG_SYS_DFU_DATA_BUF_SIZE	SZ_16M

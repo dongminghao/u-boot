@@ -15,10 +15,8 @@
 
 #define CONFIG_SYS_NO_FLASH
 
-
 #define CONFIG_IDENT_STRING	\
 	" for Cavium Thunder CN88XX ARM v8 Multi-Core"
-#define CONFIG_BOOTP_VCI_STRING		"Diagnostics"
 
 #define MEM_BASE			0x00500000
 
@@ -31,10 +29,8 @@
 /* SMP Spin Table Definitions */
 #define CPU_RELEASE_ADDR		(CONFIG_SYS_SDRAM_BASE + 0x7fff0)
 
-
 /* Generic Timer Definitions */
 #define COUNTER_FREQUENCY		(0x1800000)	/* 24MHz */
-
 
 #define CONFIG_SYS_MEMTEST_START	MEM_BASE
 #define CONFIG_SYS_MEMTEST_END		(MEM_BASE + PHYS_SDRAM_1_SIZE)
@@ -65,7 +61,6 @@
 #define CONFIG_BOOTP_GATEWAY
 #define CONFIG_BOOTP_HOSTNAME
 #define CONFIG_BOOTP_PXE
-#define CONFIG_BOOTP_PXE_CLIENTARCH	0x100
 
 /* Miscellaneous configurable options */
 #define CONFIG_SYS_LOAD_ADDR		(MEM_BASE)
@@ -89,7 +84,6 @@
 					"earlycon=pl011,0x87e024000000 " \
 					"debug maxcpus=48 rootwait rw "\
 					"root=/dev/sda2 coherent_pool=16M"
-#define CONFIG_BOOTDELAY		5
 
 /* Do not preserve environment */
 #define CONFIG_ENV_IS_NOWHERE		1
@@ -99,7 +93,6 @@
 #define CONFIG_SYS_CBSIZE		512	/* Console I/O Buffer Size */
 #define CONFIG_SYS_PBSIZE		(CONFIG_SYS_CBSIZE + \
 					 sizeof(CONFIG_SYS_PROMPT) + 16)
-#define CONFIG_SYS_PROMPT_HUSH_PS2	"> "
 #define CONFIG_SYS_BARGSIZE		CONFIG_SYS_CBSIZE
 #define CONFIG_SYS_LONGHELP
 #define CONFIG_CMDLINE_EDITING		1

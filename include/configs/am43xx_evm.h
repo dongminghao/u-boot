@@ -9,10 +9,6 @@
 #ifndef __CONFIG_AM43XX_EVM_H
 #define __CONFIG_AM43XX_EVM_H
 
-#define CONFIG_AM43XX
-
-#define CONFIG_CMD_FAT
-
 #define CONFIG_BOARD_LATE_INIT
 #define CONFIG_ARCH_CPU_INIT
 #define CONFIG_SYS_CACHELINE_SIZE       32
@@ -41,17 +37,10 @@
 #define CONFIG_POWER_TPS62362
 
 /* SPL defines. */
-#ifdef CONFIG_SPL_USB_HOST_SUPPORT
-/*
- * For USB host boot, ROM uses DMA for copying MLO from USB storage
- * and ARM internal ram is not accessible for DMA, so SPL text base
- * should be in OCMC ram
- */
-#define CONFIG_SPL_TEXT_BASE		0x40300350
-#else
-#define CONFIG_SPL_TEXT_BASE		0x402F4000
-#endif
-#define CONFIG_SPL_MAX_SIZE		(220 << 10)	/* 220KB */
+#define CONFIG_SPL_TEXT_BASE		CONFIG_ISW_ENTRY_ADDR
+#define CONFIG_SPL_MAX_SIZE		(NON_SECURE_SRAM_END - \
+					CONFIG_PUB_ROM_DATA_SIZE - \
+					CONFIG_SPL_TEXT_BASE)
 #define CONFIG_SYS_SPL_ARGS_ADDR	(CONFIG_SYS_SDRAM_BASE + \
 					 (128 << 20))
 #define CONFIG_SPL_POWER_SUPPORT
@@ -109,10 +98,7 @@
 
 #if defined(CONFIG_SPL_USB_HOST_SUPPORT) || !defined(CONFIG_SPL_BUILD)
 #define CONFIG_SYS_USB_FAT_BOOT_PARTITION		1
-#define CONFIG_CMD_USB
 #define CONFIG_USB_HOST
-#define CONFIG_USB_XHCI
-#define CONFIG_USB_XHCI_DWC3
 #define CONFIG_USB_XHCI_OMAP
 #define CONFIG_USB_STORAGE
 #define CONFIG_SYS_USB_XHCI_MAX_ROOT_PORTS 2
@@ -150,7 +136,6 @@
 /* USB Device Firmware Update support */
 #define CONFIG_USB_FUNCTION_DFU
 #define CONFIG_DFU_RAM
-#define CONFIG_CMD_DFU
 
 #define CONFIG_DFU_MMC
 #define DFU_ALT_INFO_MMC \
@@ -196,7 +181,9 @@
 #endif
 
 #ifdef CONFIG_QSPI_BOOT
-#define CONFIG_SYS_TEXT_BASE           0x30000000
+#ifndef CONFIG_SYS_TEXT_BASE
+#define CONFIG_SYS_TEXT_BASE		CONFIG_ISW_ENTRY_ADDR
+#endif
 #undef CONFIG_ENV_IS_IN_FAT
 #define CONFIG_ENV_IS_IN_SPI_FLASH
 #define CONFIG_SYS_REDUNDAND_ENVIRONMENT
@@ -221,8 +208,6 @@
 
 /* SPI */
 #undef CONFIG_OMAP3_SPI
-#define CONFIG_CMD_SF
-#define CONFIG_CMD_SPI
 #define CONFIG_TI_SPI_MMAP
 #define CONFIG_QSPI_SEL_GPIO                   48
 #define CONFIG_SF_DEFAULT_SPEED                48000000
@@ -302,6 +287,8 @@
 			"setenv fdtfile am43x-epos-evm.dtb; fi; " \
 		"if test $board_name = AM43__GP; then " \
 			"setenv fdtfile am437x-gp-evm.dtb; fi; " \
+		"if test $board_name = AM43XXHS; then " \
+			"setenv fdtfile am437x-gp-evm.dtb; fi; " \
 		"if test $board_name = AM43__SK; then " \
 			"setenv fdtfile am437x-sk-evm.dtb; fi; " \
 		"if test $board_name = AM43_IDK; then " \
@@ -323,9 +310,6 @@
 
 #ifndef CONFIG_SPL_BUILD
 /* CPSW Ethernet */
-#define CONFIG_CMD_DHCP
-#define CONFIG_CMD_PING
-#define CONFIG_CMD_MII
 #define CONFIG_MII
 #define CONFIG_BOOTP_DEFAULT
 #define CONFIG_BOOTP_DNS

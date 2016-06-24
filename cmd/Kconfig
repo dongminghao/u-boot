@@ -38,6 +38,12 @@ config SYS_PROMPT
 
 menu "Autoboot options"
 
+config AUTOBOOT
+	bool "Autoboot"
+	default y
+	help
+	  This enables the autoboot.  See doc/README.autoboot for detail.
+
 config AUTOBOOT_KEYED
 	bool "Stop autobooting via specific input key / string"
 	default n
@@ -160,6 +166,11 @@ config CMD_BOOTM
 	help
 	  Boot an application image from the memory.
 
+config CMD_BOOTZ
+	bool "bootz"
+	help
+	  Boot the Linux zImage
+
 config CMD_BOOTEFI
 	bool "bootefi"
 	depends on EFI_LOADER
@@ -217,6 +228,11 @@ endmenu
 
 menu "Environment commands"
 
+config CMD_ASKENV
+	bool "ask for env variable"
+	help
+	  Ask for environment variable
+
 config CMD_EXPORTENV
 	bool "env export"
 	default y
@@ -234,6 +250,11 @@ config CMD_EDITENV
 	default y
 	help
 	  Edit environment variable.
+
+config CMD_GREPENV
+	bool "search env"
+	help
+	  Allow for searching environment variables
 
 config CMD_SAVEENV
 	bool "saveenv"
@@ -343,10 +364,15 @@ config CMD_FLASH
 	    protect - enable or disable FLASH write protection
 
 config CMD_ARMFLASH
-	depends on FLASH_CFI_DRIVER
+	#depends on FLASH_CFI_DRIVER
 	bool "armflash"
 	help
 	  ARM Ltd reference designs flash partition access
+
+config CMD_MMC
+	bool "mmc"
+	help
+	  MMC memory mapped support.
 
 config CMD_NAND
 	bool "nand"
@@ -372,6 +398,17 @@ config CMD_USB
 	bool "usb"
 	help
 	  USB support.
+
+config CMD_DFU
+	bool "dfu"
+	help
+	  Enables the command "dfu" which is used to have U-Boot create a DFU
+	  class device via USB.
+
+config CMD_USB_MASS_STORAGE
+	bool "UMS usb mass storage"
+	help
+	  USB mass storage support
 
 config CMD_FPGA
 	bool "fpga"
@@ -461,6 +498,11 @@ config CMD_NFS
 	help
 	  Boot image via network using NFS protocol.
 
+config CMD_MII
+	bool "mii"
+	help
+	  Enable MII utility commands.
+
 config CMD_PING
 	bool "ping"
 	help
@@ -515,6 +557,11 @@ config CMD_BLOCK_CACHE
 	  during development, but also allows the cache to be disabled when
 	  it might hurt performance (e.g. when using the ums command).
 
+config CMD_CACHE
+	bool "icache or dcache"
+	help
+	  Enable the "icache" and "dcache" commands
+
 config CMD_TIME
 	bool "time"
 	help
@@ -552,6 +599,13 @@ config CMD_SOUND
 	     sound init   - set up sound system
 	     sound play   - play a sound
 
+config CMD_QFW
+	bool "qfw"
+	select QFW
+	help
+	  This provides access to the QEMU firmware interface.  The main
+	  feature is to allow easy loading of files passed to qemu-system
+	  via -kernel / -initrd
 endmenu
 
 config CMD_BOOTSTAGE
@@ -617,6 +671,35 @@ config CMD_TPM_TEST
 	  tests pass correctly on Infineon TPMs but may need to be adjusted
 	  for other devices.
 
+endmenu
+
+menu "Filesystem commands"
+config CMD_EXT2
+	bool "ext2 command support"
+	help
+	  Enables EXT2 FS command
+
+config CMD_EXT4
+	bool "ext4 command support"
+	help
+	  Enables EXT4 FS command
+
+config CMD_EXT4_WRITE
+	depends on CMD_EXT4
+	bool "ext4 write command support"
+	help
+	  Enables EXT4 FS write command
+
+config CMD_FAT
+	bool "FAT command support"
+	help
+	  Support for the FAT fs
+
+config CMD_FS_GENERIC
+	bool "filesystem commands"
+	help
+	  Enables filesystem commands (e.g. load, ls) that work for multiple
+	  fs types.
 endmenu
 
 endmenu

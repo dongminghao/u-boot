@@ -6,7 +6,6 @@
 #ifndef __CONFIG_SOCFPGA_COMMON_H__
 #define __CONFIG_SOCFPGA_COMMON_H__
 
-
 /* Virtual target or real hardware */
 #undef CONFIG_SOCFPGA_VIRTUAL_TARGET
 
@@ -68,7 +67,6 @@
 #define CONFIG_VERSION_VARIABLE			/* U-BOOT version */
 #define CONFIG_AUTO_COMPLETE			/* Command auto complete */
 #define CONFIG_CMDLINE_EDITING			/* Command history etc */
-#define CONFIG_SYS_HUSH_PARSER
 
 #ifndef CONFIG_SYS_HOSTNAME
 #define CONFIG_SYS_HOSTNAME	CONFIG_SYS_BOARD
@@ -90,8 +88,6 @@
  * EPCS/EPCQx1 Serial Flash Controller
  */
 #ifdef CONFIG_ALTERA_SPI
-#define CONFIG_CMD_SPI
-#define CONFIG_CMD_SF
 #define CONFIG_SF_DEFAULT_SPEED		30000000
 /*
  * The base address is configurable in QSys, each board must specify the
@@ -177,7 +173,6 @@
  * I2C support
  */
 #define CONFIG_SYS_I2C
-#define CONFIG_SYS_I2C_DW
 #define CONFIG_SYS_I2C_BUS_MAX		4
 #define CONFIG_SYS_I2C_BASE		SOCFPGA_I2C0_ADDRESS
 #define CONFIG_SYS_I2C_BASE1		SOCFPGA_I2C1_ADDRESS
@@ -198,7 +193,6 @@
 unsigned int cm_get_l4_sp_clk_hz(void);
 #define IC_CLK				(cm_get_l4_sp_clk_hz() / 1000000)
 #endif
-#define CONFIG_CMD_I2C
 
 /*
  * QSPI support
@@ -217,12 +211,10 @@ unsigned int cm_get_qspi_controller_clk_hz(void);
 #define CONFIG_CQSPI_REF_CLK		cm_get_qspi_controller_clk_hz()
 #endif
 #define CONFIG_CQSPI_DECODER		0
-#define CONFIG_CMD_SF
 
 /*
  * Designware SPI support
  */
-#define CONFIG_CMD_SPI
 
 /*
  * Serial Driver
@@ -332,9 +324,6 @@ unsigned int cm_get_qspi_controller_clk_hz(void);
 #define CONFIG_SPL_RAM_DEVICE
 #define CONFIG_SPL_TEXT_BASE		CONFIG_SYS_INIT_RAM_ADDR
 #define CONFIG_SPL_MAX_SIZE		(64 * 1024)
-#ifdef CONFIG_SPL_BUILD
-#define CONFIG_SYS_MALLOC_SIMPLE
-#endif
 
 #define CONFIG_SPL_LIBCOMMON_SUPPORT
 #define CONFIG_SPL_LIBGENERIC_SUPPORT
@@ -357,9 +346,9 @@ unsigned int cm_get_qspi_controller_clk_hz(void);
 #define CONFIG_SPL_FS_LOAD_PAYLOAD_NAME		"u-boot-dtb.img"
 #define CONFIG_SPL_LIBDISK_SUPPORT
 #else
-#define CONFIG_SYS_MMCSD_FS_BOOT_PARTITION	3
-#define CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_SECTOR	0xa00 /* offset 2560 sect (1M+256k) */
-#define CONFIG_SYS_U_BOOT_MAX_SIZE_SECTORS	800 /* 400 KB */
+#define CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_PARTITION	3
+#define CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_SECTOR	0x200 /* offset 512 sect (256k) */
+#define CONFIG_SPL_LIBDISK_SUPPORT
 #endif
 #endif
 

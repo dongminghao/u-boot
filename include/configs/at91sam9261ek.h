@@ -69,7 +69,6 @@
 #define	CONFIG_GREEN_LED	AT91_PIN_PA13	/* this is the user1 led */
 #define	CONFIG_YELLOW_LED	AT91_PIN_PA14	/* this is the user2 led */
 
-#define CONFIG_BOOTDELAY	3
 
 /*
  * BOOTP options
@@ -82,10 +81,7 @@
 /*
  * Command line configuration.
  */
-#define CONFIG_CMD_PING
-#define CONFIG_CMD_DHCP
 #define CONFIG_CMD_NAND
-#define CONFIG_CMD_USB
 
 /* SDRAM */
 #define CONFIG_NR_DRAM_BANKS		1
@@ -146,7 +142,6 @@
 #endif
 #define CONFIG_SYS_USB_OHCI_MAX_ROOT_PORTS	2
 #define CONFIG_USB_STORAGE
-#define CONFIG_CMD_FAT
 
 #define CONFIG_SYS_LOAD_ADDR			0x22000000	/* load address */
 

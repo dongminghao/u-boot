@@ -111,7 +111,6 @@
 						CONFIG_SYS_INIT_RAM_SIZE - \
 						GENERATED_GBL_DATA_SIZE)
 
-#define CONFIG_TEGRA_GPIO
 #define CONFIG_CMD_ENTERRCM
 
 /* Defines for SPL */
@@ -137,7 +136,6 @@
 
 #ifndef CONFIG_SPL_BUILD
 #include <config_distro_defaults.h>
-#define CONFIG_CMD_EXT4_WRITE
 #define CONFIG_FAT_WRITE
 #endif
 

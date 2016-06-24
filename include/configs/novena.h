@@ -19,18 +19,11 @@
 #include "mx6_common.h"
 
 /* U-Boot Commands */
-#define CONFIG_CMD_ASKENV
 #define CONFIG_CMD_BMODE
-#define CONFIG_CMD_DHCP
 #define CONFIG_CMD_EEPROM
-#define CONFIG_CMD_I2C
 #define CONFIG_FAT_WRITE
-#define CONFIG_CMD_MII
 #define CONFIG_CMD_PCI
-#define CONFIG_CMD_PING
 #define CONFIG_CMD_SATA
-#define CONFIG_CMD_TIME
-#define CONFIG_CMD_USB
 #define CONFIG_VIDEO
 
 /* U-Boot general configurations */
@@ -82,7 +75,6 @@
 
 /* SPL */
 #define CONFIG_SPL_FAT_SUPPORT
-#define CONFIG_SPL_EXT_SUPPORT
 #define CONFIG_SPL_MMC_SUPPORT
 #include "imx6_spl.h"			/* common IMX6 SPL configuration */
 
@@ -157,6 +149,7 @@
 #define CONFIG_USB_EHCI_MX6
 #define CONFIG_USB_STORAGE
 #define CONFIG_USB_KEYBOARD
+#define CONFIG_SYS_STDIO_DEREGISTER
 #define CONFIG_SYS_USB_EVENT_POLL_VIA_CONTROL_EP
 #define CONFIG_USB_HOST_ETHER
 #define CONFIG_USB_ETHER_ASIX

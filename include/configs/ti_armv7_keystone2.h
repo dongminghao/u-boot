@@ -191,8 +191,6 @@
 					"-(ubifs)"
 
 /* USB Configuration */
-#define CONFIG_USB_XHCI
-#define CONFIG_USB_XHCI_DWC3
 #define CONFIG_USB_XHCI_KEYSTONE
 #define CONFIG_SYS_USB_XHCI_MAX_ROOT_PORTS	2
 #define CONFIG_USB_STORAGE
@@ -205,14 +203,10 @@
 #define CONFIG_USB_PHY_CFG_BASE			KS2_USB_PHY_CFG_BASE
 
 /* U-Boot command configuration */
-#define CONFIG_CMD_DHCP
-#define CONFIG_CMD_PING
 #define CONFIG_CMD_SAVES
 #define CONFIG_CMD_UBI
 #define CONFIG_CMD_UBIFS
-#define CONFIG_CMD_SF
 #define CONFIG_CMD_EEPROM
-#define CONFIG_CMD_USB
 
 /* U-Boot general configuration */
 #define CONFIG_MISC_INIT_R
@@ -251,7 +245,6 @@
 	"tftp_root=/\0"							\
 	"nfs_root=/export\0"						\
 	"mem_lpae=1\0"							\
-	"mem_reserve=512M\0"						\
 	"addr_ubi=0x82000000\0"						\
 	"addr_secdb_key=0xc000000\0"					\
 	"name_kern=zImage\0"						\
@@ -318,7 +311,6 @@
 #undef CONFIG_SPL_EXT_SUPPORT
 #undef CONFIG_MMC
 #undef CONFIG_GENERIC_MMC
-#undef CONFIG_CMD_MMC
 
 /* And no support for GPIO, yet.. */
 #undef CONFIG_SPL_GPIO_SUPPORT

@@ -11,11 +11,8 @@
 /*
  * Command line configuration.
  */
-#define CONFIG_CMD_CACHE
 #define CONFIG_CMD_PCI
-#define CONFIG_CMD_PING
 #define CONFIG_CMD_IDE
-#define CONFIG_CMD_EXT2
 #define CONFIG_DOS_PARTITION
 #define CONFIG_CMD_SH_ZIMAGEBOOT
 
@@ -25,7 +22,6 @@
 #define CONFIG_CONS_SCIF1	1
 #define CONFIG_BOARD_LATE_INIT
 
-#define CONFIG_BOOTDELAY	-1
 #define CONFIG_BOOTARGS		"console=ttySC0,115200"
 #define CONFIG_ENV_OVERWRITE	1
 

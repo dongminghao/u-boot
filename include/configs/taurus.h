@@ -22,7 +22,6 @@
 #include <asm/hardware.h>
 #include <linux/sizes.h>
 
-
 #if defined(CONFIG_SPL_BUILD)
 #define CONFIG_SYS_THUMB_BUILD
 #define CONFIG_SYS_ICACHE_OFF
@@ -34,7 +33,6 @@
  * Since the linker has to swallow that define, we must use a pure
  * hex number here!
  */
-
 
 #define CONFIG_SYS_TEXT_BASE		0x21000000
 
@@ -51,8 +49,6 @@
 #define CONFIG_BOARD_EARLY_INIT_F
 #define CONFIG_DISPLAY_CPUINFO
 
-#define CONFIG_CMD_BOOTZ
-
 /* general purpose I/O */
 #define CONFIG_ATMEL_LEGACY		/* required until (g)pio is fixed */
 #define CONFIG_AT91_GPIO
@@ -64,13 +60,10 @@
 #define CONFIG_USART_ID			ATMEL_ID_SYS
 #define CONFIG_BAUDRATE			115200
 
-#define CONFIG_BOOTDELAY	3
 
 /*
  * Command line configuration.
  */
-#define CONFIG_CMD_PING
-#define CONFIG_CMD_DHCP
 #define CONFIG_CMD_NAND
 
 /*
@@ -135,8 +128,6 @@
 #define CONFIG_USB_GADGET_AT91
 
 /* DFU class support */
-#define CONFIG_CMD_USB
-#define CONFIG_CMD_DFU
 #define CONFIG_USB_FUNCTION_DFU
 #define CONFIG_DFU_NAND
 #define CONFIG_SYS_DFU_DATA_BUF_SIZE	(SZ_1M)
@@ -147,8 +138,6 @@
 
 /* SPI EEPROM */
 #define CONFIG_SPI
-#define CONFIG_CMD_SPI
-#define CONFIG_CMD_SF
 #define CONFIG_ATMEL_SPI
 #define TAURUS_SPI_MASK (1 << 4)
 #define TAURUS_SPI_CS_PIN	AT91_PIN_PA3
@@ -303,7 +292,6 @@
 #define CONFIG_SYS_NAND_ECCPOS		{ 40, 41, 42, 43, 44, 45, 46, 47, \
 					  48, 49, 50, 51, 52, 53, 54, 55, \
 					  56, 57, 58, 59, 60, 61, 62, 63, }
-
 
 #define CONFIG_SPL_ATMEL_SIZE
 #define CONFIG_SYS_MASTER_CLOCK		132096000

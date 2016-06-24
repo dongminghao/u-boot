@@ -3,7 +3,7 @@
 #
 
 VERSION = 2016
-PATCHLEVEL = 05
+PATCHLEVEL = 07
 SUBLEVEL =
 EXTRAVERSION = -rc2
 NAME =
@@ -801,13 +801,6 @@ quiet_cmd_pad_cat = CAT     $@
 cmd_pad_cat = $(cmd_objcopy) && $(append) || rm -f $@
 
 all:		$(ALL-y)
-ifneq ($(CONFIG_SYS_GENERIC_BOARD),y)
-	@echo "===================== WARNING ======================"
-	@echo "Please convert this board to generic board."
-	@echo "Otherwise it will be removed by the end of 2014."
-	@echo "See doc/README.generic-board for further information"
-	@echo "===================================================="
-endif
 ifeq ($(CONFIG_DM_I2C_COMPAT),y)
 	@echo "===================== WARNING ======================"
 	@echo "This board uses CONFIG_DM_I2C_COMPAT. Please remove"
@@ -898,7 +891,7 @@ ifdef CONFIG_SPL_LOAD_FIT
 MKIMAGEFLAGS_u-boot.img = -f auto -A $(ARCH) -T firmware -C none -O u-boot \
 	-a $(CONFIG_SYS_TEXT_BASE) -e $(CONFIG_SYS_UBOOT_START) \
 	-n "U-Boot $(UBOOTRELEASE) for $(BOARD) board" -E \
-	-b $(patsubst %,arch/$(ARCH)/dts/%.dtb,$(subst ",,$(CONFIG_OF_LIST)))
+	$(patsubst %,-b arch/$(ARCH)/dts/%.dtb,$(subst ",,$(CONFIG_OF_LIST)))
 else
 MKIMAGEFLAGS_u-boot.img = -A $(ARCH) -T firmware -C none -O u-boot \
 	-a $(CONFIG_SYS_TEXT_BASE) -e $(CONFIG_SYS_UBOOT_START) \
@@ -1257,13 +1250,6 @@ prepare2: prepare3 outputmakefile
 
 prepare1: prepare2 $(version_h) $(timestamp_h) \
                    include/config/auto.conf
-ifeq ($(CONFIG_HAVE_GENERIC_BOARD),)
-ifeq ($(CONFIG_SYS_GENERIC_BOARD),y)
-	@echo >&2 "  Your architecture does not support generic board."
-	@echo >&2 "  Please undefine CONFIG_SYS_GENERIC_BOARD in your board config file."
-	@/bin/false
-endif
-endif
 ifeq ($(wildcard $(LDSCRIPT)),)
 	@echo >&2 "  Could not find linker script."
 	@/bin/false
@@ -1452,6 +1438,7 @@ clean: $(clean-dirs)
 		-o -name '.*.d' -o -name '.*.tmp' -o -name '*.mod.c' \
 		-o -name '*.symtypes' -o -name 'modules.order' \
 		-o -name modules.builtin -o -name '.tmp_*.o.*' \
+		-o -name 'dsdt.aml' -o -name 'dsdt.asl.tmp' -o -name 'dsdt.c' \
 		-o -name '*.gcno' \) -type f -print | xargs rm -f
 
 # mrproper - Delete all generated files, including .config

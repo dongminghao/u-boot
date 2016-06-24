@@ -111,6 +111,8 @@ void save_omap_boot_params(void)
 	    (boot_device <= MMC_BOOT_DEVICES_END)) {
 		switch (boot_device) {
 		case BOOT_DEVICE_MMC1:
+			boot_mode = MMCSD_MODE_FS;
+			break;
 		case BOOT_DEVICE_MMC2:
 			boot_mode = MMCSD_MODE_RAW;
 			break;
@@ -198,7 +200,7 @@ void spl_board_init(void)
 #endif
 }
 
-int board_mmc_init(bd_t *bis)
+__weak int board_mmc_init(bd_t *bis)
 {
 	switch (spl_boot_device()) {
 	case BOOT_DEVICE_MMC1:

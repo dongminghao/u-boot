@@ -30,6 +30,7 @@ static const char * const compat_names[COMPAT_COUNT] = {
 	COMPAT(NVIDIA_TEGRA124_SOR, "nvidia,tegra124-sor"),
 	COMPAT(NVIDIA_TEGRA124_PMC, "nvidia,tegra124-pmc"),
 	COMPAT(NVIDIA_TEGRA20_DC, "nvidia,tegra20-dc"),
+	COMPAT(NVIDIA_TEGRA186_SDMMC, "nvidia,tegra186-sdhci"),
 	COMPAT(NVIDIA_TEGRA210_SDMMC, "nvidia,tegra210-sdhci"),
 	COMPAT(NVIDIA_TEGRA124_SDMMC, "nvidia,tegra124-sdhci"),
 	COMPAT(NVIDIA_TEGRA30_SDMMC, "nvidia,tegra30-sdhci"),
@@ -1169,7 +1170,7 @@ int fdtdec_decode_display_timing(const void *blob, int parent, int index,
 	if (fdtdec_get_bool(blob, node, "doubleclk"))
 		dt->flags |= DISPLAY_FLAGS_DOUBLECLK;
 
-	return 0;
+	return ret;
 }
 
 int fdtdec_setup(void)

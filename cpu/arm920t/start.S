@@ -145,10 +145,15 @@ copyex:
 #  define CLKDIVN	0x4C000014	/* clock divisor register */
 # endif
 #define CLK_CTL_BASE	0x4C000000	/* tekkaman */
-#define MDIV_405	0x7f << 12	/* tekkaman */
-#define PSDIV_405	0x21		/* tekkaman */
+/*
+#define MDIV_405	0x7f << 12	* tekkaman *
+#define PSDIV_405	0x21		* tekkaman **/
 #define MDIV_200	0xa1 << 12	/* tekkaman */
 #define PSDIV_200	0x31		/* tekkaman */
+
+#define MDIV_405	184 << 12	/* dmh */
+#define PSDIV_405	0x22		/* dmh */
+
 
 
 	ldr	r0, =pWTCON
@@ -188,7 +193,8 @@ copyex:
 	mov	r1, #CLK_CTL_BASE	
 	mov	r2, #MDIV_405	
 	add	r2, r2, #PSDIV_405	
-	str	r2, [r1, #0x04]		/* MPLLCON tekkaman */
+	str	r2, [r1, #0x04]		 /*MPLLCON tekkaman */
+
 
 #else
 	/* FCLK:HCLK:PCLK = 1:2:4 */

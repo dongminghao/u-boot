@@ -37,9 +37,8 @@
  * If we are developing, we might want to start armboot from ram
  * so we MUST NOT initialize critical regs like mem-timing ...
  */
- /*
-#undef CONFIG_SKIP_LOWLEVEL_INIT	 undef for developing */
-#define CONFIG_SKIP_LOWLEVEL_INIT
+#undef CONFIG_SKIP_LOWLEVEL_INIT	/* undef for developing */
+
 /*
  * High Level Configuration Options
  * (easy to change)
@@ -53,7 +52,7 @@
 #define CONFIG_MINI2440_LED 	1
 #define CONFIG_S3C2410_NAND_SKIP_BAD	1
 /* input clock of PLL */
-#define CONFIG_SYS_CLK_FREQ	16934400/* the SBC2410X has 12MHz input clock */
+#define CONFIG_SYS_CLK_FREQ	12000000/* the SBC2410X has 12MHz input clock */
 
 
 #define USE_920T_MMU		1
@@ -81,7 +80,7 @@
 #define CONFIG_NET_MULTI		1
 #define CONFIG_NET_RETRY_COUNT		20
 #define CONFIG_DRIVER_DM9000		1
-#define CONFIG_DM9000_BASE		0x18000300 //0x20000300
+#define CONFIG_DM9000_BASE		0x20000300
 #define DM9000_IO 			CONFIG_DM9000_BASE
 #define DM9000_DATA 			(CONFIG_DM9000_BASE+4)
 #define CONFIG_DM9000_USE_16BIT		1

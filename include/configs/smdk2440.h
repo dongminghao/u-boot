@@ -37,7 +37,9 @@
  * If we are developing, we might want to start armboot from ram
  * so we MUST NOT initialize critical regs like mem-timing ...
  */
-#define CONFIG_SKIP_LOWLEVEL_INIT	/* undef for developing */
+/*
+#undef CONFIG_SKIP_LOWLEVEL_INIT
+ */	/* undef for developing */
 
 /*
  * High Level Configuration Options

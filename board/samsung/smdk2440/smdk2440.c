@@ -60,7 +60,7 @@ DECLARE_GLOBAL_DATA_PTR;
 #define M_MDIV 184	
 #define M_PDIV 0x2
 /*#define M_SDIV 0x1*/
-#define M_SDIV 0x2
+#define M_SDIV 0x1
 #endif
 #endif
 
@@ -105,6 +105,7 @@ int board_init (void)
 	struct s3c24x0_clock_power * const clk_power =
 					s3c24x0_get_base_clock_power();
 	struct s3c24x0_gpio * const gpio = s3c24x0_get_base_gpio();
+
 
 	/* to reduce PLL lock time, adjust the LOCKTIME register */
 	clk_power->LOCKTIME = 0xFFFFFF;

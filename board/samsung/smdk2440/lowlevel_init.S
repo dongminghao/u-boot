@@ -121,7 +121,7 @@
 
 #if defined(CONFIG_S3C2440)
 #define Trp			0x2	/* 4clk */
-#define REFCNT			1012
+#define REFCNT			1256
 #else
 #define Trp			0x0	/* 2clk */
 #define REFCNT			0x0459

@@ -56,9 +56,9 @@ DECLARE_GLOBAL_DATA_PTR;
 
 #if defined(CONFIG_S3C2440)
 /* Fout = 405MHz */
-#define M_MDIV 0x7f	
+#define M_MDIV 184	
 #define M_PDIV 0x2
-#define M_SDIV 0x1
+#define M_SDIV 0x2
 #endif
 #endif
 
@@ -76,8 +76,8 @@ DECLARE_GLOBAL_DATA_PTR;
 #endif
 
 #if defined(CONFIG_S3C2440)
-#define U_M_MDIV 0x38
-#define U_M_PDIV 0x2
+#define U_M_MDIV 60
+#define U_M_PDIV 0x4
 #endif
 
 #define U_M_SDIV	0x2
@@ -118,7 +118,8 @@ int board_init (void)
 	/* set up the I/O ports */
 	gpio->GPACON = 0x007FFFFF;
 
-#if defined(CONFIG_MINI2440) 
+//#if defined(CONFIG_MINI2440) 
+#if 0
 	gpio->GPBCON = 0x00295551;
 #else
 	gpio->GPBCON = 0x00044556;
@@ -126,7 +127,8 @@ int board_init (void)
 
 	gpio->GPBUP = 0x000007FF;
 
-#if defined(CONFIG_MINI2440) 
+//#if defined(CONFIG_MINI2440) 
+#if 0
 	gpio->GPCCON = 0xAAAAA6AA;
 	gpio->GPCDAT &= ~(1<<5);
 #else

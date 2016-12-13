@@ -37,9 +37,11 @@
  * If we are developing, we might want to start armboot from ram
  * so we MUST NOT initialize critical regs like mem-timing ...
  */
- /*
-#undef CONFIG_SKIP_LOWLEVEL_INIT	 undef for developing */
+#if 1
+#undef CONFIG_SKIP_LOWLEVEL_INIT	 /*undef for developing */
+#else
 #define CONFIG_SKIP_LOWLEVEL_INIT
+#endif
 /*
  * High Level Configuration Options
  * (easy to change)
@@ -50,7 +52,9 @@
 //#define CONFIG_SBC2410X	1	/* on a friendly-arm SBC-2410X Board  */
 #define	CONFIG_S3C2440		1	/* in a SAMSUNG S3C2440 SoC     */
 #define CONFIG_MINI2440		1	/* on a friendly-arm MINI2440 Board  */
+/*
 #define CONFIG_MINI2440_LED 	1
+*/
 #define CONFIG_S3C2410_NAND_SKIP_BAD	1
 /* input clock of PLL */
 #define CONFIG_SYS_CLK_FREQ	16934400/* the SBC2410X has 12MHz input clock */
@@ -59,7 +63,7 @@
 #define USE_920T_MMU		1
 
 //#undef CONFIG_USE_IRQ			/* we don't need IRQ/FIQ stuff */
-#define CONFIG_USB_DEVICE 1
+#undef CONFIG_USB_DEVICE 1
 #ifdef CONFIG_USB_DEVICE
 #define CONFIG_USE_IRQ 1
 #endif
@@ -165,7 +169,7 @@
  * Miscellaneous configurable options
  */
 #define	CONFIG_SYS_LONGHELP				/* undef to save memory		*/
-#define	CONFIG_SYS_PROMPT		"[u-boot@MINI2440]# "	/* Monitor Command Prompt	*/
+#define	CONFIG_SYS_PROMPT		"[u-boot@AT2440EVB]# "	/* Monitor Command Prompt	*/
 #define	CONFIG_SYS_CBSIZE		256		/* Console I/O Buffer Size	*/
 #define	CONFIG_SYS_PBSIZE (CONFIG_SYS_CBSIZE+sizeof(CONFIG_SYS_PROMPT)+16) /* Print Buffer Size */
 #define	CONFIG_SYS_MAXARGS		16		/* max number of command args	*/
@@ -231,7 +235,7 @@
 #define CONFIG_SYS_FLASH_WRITE_TOUT	(5*CONFIG_SYS_HZ) /* Timeout for Flash Write */
 
 
-//#if 0
+#if 0
 #define CONFIG_CMD_EEPROM
 #define CONFIG_CMD_I2C
 
@@ -250,7 +254,7 @@
                     /* last 4 bits of the address    */
 #define CONFIG_SYS_EEPROM_PAGE_WRITE_DELAY_MS    10   /* and takes up to 10 msec */
 #define CONFIG_SYS_EEPROM_PAGE_WRITE_ENABLE
-
+#endif
 //#define CONFIG_ENV_IS_IN_EEPROM    1    /* use EEPROM for environment vars */
 //#define CONFIG_ENV_OFFSET       0x000    /* environment starts at offset 0 */
 //#define CONFIG_ENV_SIZE	        0x400    /* 1KB  */
@@ -334,7 +338,7 @@
 #define ENABLE_CMD_NAND_YAFFS_SKIPFB	1
 //#define CFG_NAND_YAFFS1_NEW_OOB_LAYOUT	1
 
-#if 1
+#if 0
 #define CONFIG_CMD_BMP 
 #define CONFIG_VIDEO 
 #define CONFIG_VIDEO_S3C2410 

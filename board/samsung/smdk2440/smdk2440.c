@@ -125,7 +125,8 @@ int board_init (void)
 	/* set up the I/O ports */
 	gpio->GPACON = 0x007FFFFF;
 
-#if defined(CONFIG_MINI2440) 
+//#if defined(CONFIG_MINI2440) 
+#if 0
 	gpio->GPBCON = 0x00295551;
 #else
 	gpio->GPBCON = 0x00044556;
@@ -133,7 +134,8 @@ int board_init (void)
 
 	gpio->GPBUP = 0x000007FF;
 
-#if defined(CONFIG_MINI2440) 
+//#if defined(CONFIG_MINI2440) 
+#if 0
 	gpio->GPCCON = 0xAAAAA6AA;
 	gpio->GPCDAT &= ~(1<<5);
 #else

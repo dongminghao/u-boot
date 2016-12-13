@@ -66,7 +66,9 @@ static ulong get_PLLCLK(int pllreg)
 //tekkaman
 #if defined(CONFIG_S3C2440)
 	if (pllreg == MPLL)
-	return ((CONFIG_SYS_CLK_FREQ * m * 2) /(p << s));
+//	return ((CONFIG_SYS_CLK_FREQ * m * 2) /(p << s));
+	return 2 * m * (CONFIG_SYS_CLK_FREQ / (p << s));
+
 	else if (pllreg == UPLL)
 #endif
 //tekkaman
@@ -87,14 +89,19 @@ ulong get_HCLK(void)
 //	return (readl(&clk_power->CLKDIVN) & 2) ? get_FCLK() / 2 : get_FCLK();
 //tekkaman
 #if defined(CONFIG_S3C2440)
-	if (readl(&clk_power->CLKDIVN) & 0x6) 
-				{
-				if ((readl(&clk_power->CLKDIVN) & 0x6)==2) return(get_FCLK()/2);
-				if ((readl(&clk_power->CLKDIVN) & 0x6)==6) return((readl(&clk_power->CAMDIVN) & 0x100) ? get_FCLK()/6 : get_FCLK()/3);
-				if ((readl(&clk_power->CLKDIVN) & 0x6)==4) return((readl(&clk_power->CAMDIVN) & 0x200) ? get_FCLK()/8 : get_FCLK()/4);
-				return(get_FCLK());
-				}
-	else	return(get_FCLK());
+	switch (readl(&clk_power->CLKDIVN) & 0x6) {
+	default:
+	case 0:
+		return get_FCLK();
+	case 2:
+		return get_FCLK() / 2;
+	case 4:
+		return (readl(&clk_power->CAMDIVN) & (1 << 9)) ?
+			get_FCLK() / 8 : get_FCLK() / 4;
+	case 6:
+		return (readl(&clk_power->CAMDIVN) & (1 << 8)) ?
+			get_FCLK() / 6 : get_FCLK() / 3;
+	}
 #else
 	return((readl(&clk_power->CLKDIVN) & 0x2) ? get_FCLK()/2 : get_FCLK());
 #endif

@@ -63,7 +63,7 @@
 #define USE_920T_MMU		1
 
 //#undef CONFIG_USE_IRQ			/* we don't need IRQ/FIQ stuff */
-#undef CONFIG_USB_DEVICE 1
+#define CONFIG_USB_DEVICE 1
 #ifdef CONFIG_USB_DEVICE
 #define CONFIG_USE_IRQ 1
 #endif

@@ -618,7 +618,21 @@ int do_bootm (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	}
 
 	if (bootm_start(cmdtp, flag, argc, argv))
+	// Added by FriendlyARM
+	{ 
+		memset(&images, 0, sizeof images);
+		unsigned addr;
+		if (argc > 1) {
+			char *endp;
+			addr = simple_strtoul(argv[1], &endp, 16);
+		} else {
+			addr = load_addr;
+		}
+		images.ep = addr;
+		do_bootm_linux(0, 0, 0, &images);
 		return 1;
+	}
+		
 
 	/*
 	 * We have reached the point of no return: we are going to

@@ -177,6 +177,23 @@ struct amd_flash_info {
 #define SIZE_8MiB   23
 
 static const struct amd_flash_info jedec_table[] = {
+	{
+		.mfr_id		= (u16)MX_MANUFACT,
+		.dev_id		= AM29LV160DB,
+		.name		= "AM29LV160DB",
+		.uaddr		= {
+			[0] = MTD_UADDR_0x0555_0x02AA /* x16 */
+		},
+		.DevSize	= SIZE_2MiB,
+		.CmdSet		= CFI_CMDSET_AMD_LEGACY,
+		.NumEraseRegions= 4,
+		.regions	= {
+			ERASEINFO(0x10000, 15),
+			ERASEINFO(0x08000, 1),  
+			ERASEINFO(0x02000, 2),
+            ERASEINFO(0x04000, 1),	
+		}
+	},
 #ifdef CONFIG_SYS_FLASH_LEGACY_256Kx8
 	{
 		.mfr_id		= (u16)SST_MANUFACT,

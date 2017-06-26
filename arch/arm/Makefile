@@ -75,6 +75,7 @@ machine-$(CONFIG_STM32)			+= stm32
 machine-$(CONFIG_TEGRA)			+= tegra
 machine-$(CONFIG_ARCH_UNIPHIER)		+= uniphier
 machine-$(CONFIG_ARCH_ZYNQ)		+= zynq
+machine-$(CONFIG_ARCH_S5PV210)          += s5pv210
 
 machdirs := $(patsubst %,arch/arm/mach-%/,$(machine-y))
 

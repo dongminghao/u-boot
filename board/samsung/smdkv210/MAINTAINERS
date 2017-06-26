@@ -1,0 +1,6 @@
+SMDKV210 BOARD
+M:	Minkyu Kang <mk7.kang@samsung.com>
+S:	Maintained
+F:	board/samsung/smdkv210/
+F:	include/configs/smdkv210.h
+F:	configs/smdkv210_defconfig
